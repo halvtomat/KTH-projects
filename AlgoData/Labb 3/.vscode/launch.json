@@ -1,0 +1,16 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - FrequencyCounterOAST",
+            "request": "launch",
+            "mainClass": "FrequencyCounterOAST"
+        },
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - Assignment2",
+            "request": "launch",
+            "mainClass": "Assignment2"
+        }
+    ]
+}
