@@ -8,12 +8,11 @@ int main(){
     int pid = fork();
 
     if(pid == 0){
-        return 42;
+        execlp("ls","ls", NULL);
+        printf("This will only happen if exec fails\n");
     } else{
-        int res;
-        wait(&res);
-        printf("The result was %d\n", WEXITSTATUS(res));
+        wait(NULL);
+        printf("we're done\n");
     }
-
     return 0;
 }
