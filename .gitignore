@@ -1,4 +1,4 @@
 #Ignore executable files used for testing
 *.out
 *.class
-
+*.exe
