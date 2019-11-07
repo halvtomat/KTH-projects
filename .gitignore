@@ -1,2 +1,4 @@
 #Ignore executable files used for testing
-*a.out
+*.out
+*.class
+
