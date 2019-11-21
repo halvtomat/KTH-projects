@@ -1,14 +1,18 @@
 verify(InputFile):-
     see(InputFile),                                 %Set InputFile as standard input.
-    read(prems),                                    %Read the next prolog term of the standard input.
-    read(goal),                                     %---||---
-    read(proof),                                    %---||---
+    read(Prems),                                    %Read the next prolog term of the standard input.
+    read(Goal),                                     %---||---
+    read(Proof),                                    %---||---
     seen,                                           %close the InputFile and set standard input to keyboard again.
-    check_proof(prems, goal, proof).
+    check_proof(Prems, Goal, Proof).
 
-check_proof(prems, goal, proof):-
-    assert(prems_db(prems)),                        %Add all premisses to the premise database
-    assert(proof_db(proof)).                        %Add the proof to the proof database
+check_proof(Prems, Goal, Proof):-
+    asserta(prems_db(Prems)),                        %Add all premisses to the premise database
+    asserta(proof_db(Proof)),                        %Add the proof to the proof database
+    last(Proof,[_,Goal,_]),
+
+    (check_rule(Proof) -> (retract(proof_db(X)),retract(prems_db(Y)));(retract(proof_db(X)),retract(prems_db(Y)),fail)).
+
 
 check_rule([]):- !.
 check_rule([[_,X,premise]|T]):-                     %Premiss
@@ -55,7 +59,8 @@ check_rule([[N,X,copy(R)]|T]):-                     %Copy
     member([R,X,_],Proo),
     check_rule(T).
 check_rule([[N,cont,negel(R1,R2)]|T]):-             %Negation elimination
-    N>R,
+    N>R1,
+    N>R2,
     proof_db(Proo),
     member([R1,X,_],Proo),
     member([R2,neg(X),_],Proo),
@@ -68,14 +73,14 @@ check_rule([[N,_,contel(R)]|T]):-                   %Contradiction elimination
 check_rule([[N,X,negnegel(R)]|T]):-                 %Double-Negation elimination
     N>R,
     proof_db(Proo),
-    member([R,neg(neg(x)),_],Proo),
+    member([R,neg(neg(X)),_],Proo),
     check_rule(T).
 check_rule([[N,X,impel(R1,R2)]|T]):-                %Implication eliminiation
     N>R1,
     N>R2,
     proof_db(Proo),
-    member([R1,imp(Y,X),_],Proo),
-    member([R2,Y,_],Proo),
+    member([R2,imp(Y,X),_],Proo),
+    member([R1,Y,_],Proo),
     check_rule(T).
 check_rule([[N,neg(X),mt(R1,R2)]|T]):-              %Modus Tollens
     N>R1,
@@ -84,20 +89,22 @@ check_rule([[N,neg(X),mt(R1,R2)]|T]):-              %Modus Tollens
     member([R1,imp(X,Y),_],Proo),
     member([R2,neg(Y),_],Proo),
     check_rule(T).
-check_rule([[N,or(X,neg(X)),lem]|T]):-              %Law of Excluded Middle
+check_rule([[_,or(X,neg(X)),lem]|T]):-              %Law of Excluded Middle
     check_rule(T).
-%––––––––––––––––––––––––––––––––––––––––––––––––––––Box time–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––.
-check_rule([[[N,X,assumption]|T1]|T2]):-                                                                                  %
-    proof_db(Proo),                                                                                                       % 
-    append(Proo,[[N,X,assumption]|T1],Prootemp),                                                                          %
-    assert(proof_db(Prootemp)),                                                                                           %
-    check_rule(T1),                                                                                                       %
+%––––––––––––––––––––––––––––––––––––––––––––––––––––Box time–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––:
+check_rule([[[N,X,assumption]|T1]|T2]):-                                                                                 %|
+    proof_db(Proo),                                                                                                      %|
+    append(Proo,[[N,X,assumption]|T1],Prootemp),                                                                         %|
+    assert(proof_db(Prootemp)),                                                                                          %|
+    check_rule(T1),                                                                                                      %|
+                                                                                                                         %|
+    last([[N,X,assumption]|T1], Res),                                                                                    %|
+    append(Proo,[[N,X,assumption],Res],Proo2),                                                                           %|
+    retractall(proof_db(_)),                                                                                             %|
+    assert(proof_db(Proo2)),                                                                                             %|
+    check_rule(T2).                                                                                                      %|
+%–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––:
 
-    last([[N,X,assumption]|T1], Res),
-    append(Proo,[[N,X,assumption],Res],Proo2),
-    retractall(proof_db(_)),
-    assert(proof_db(Proo2)),
-    check_rule(T2).
 check_rule([[N,imp(X,Y),impint(R1,R2)]|T]):-        %Implication introduction
     N>R1,
     N>R2,
