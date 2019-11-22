@@ -2,3 +2,4 @@
 *.out
 *.class
 *.exe
+*.DS_Store
