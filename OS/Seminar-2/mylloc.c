@@ -24,5 +24,5 @@ struct head {
 };
 
 struct head *after(struct head *block){
-    return (struct head*)(block + block->size + HEAD)
+    return (struct head*)(block + block->size + HEAD);
 }
