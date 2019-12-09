@@ -3,3 +3,4 @@
 *.class
 *.exe
 *.o
+*.DS_Store

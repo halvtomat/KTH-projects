@@ -1,0 +1,11 @@
+[imp(imp(a,b),a)].
+imp(imp(a,b),b).
+[
+[1,imp(imp(a,b),a),premise],
+[
+  [2,imp(a,b),assumption],
+  [3,a,impel(2,1)],
+  [4,b,impel(3,2)]
+],
+[5, imp(imp(a,b),b), impint(2,4)]
+].
