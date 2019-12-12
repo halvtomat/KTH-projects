@@ -1,10 +1,11 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <unistd.h>
 #include <stdint.h>
 #include <sys/mman.h>
 #include <errno.h>
 
-#define __USE_MISC
+#define __USE_MISC 1
 
 #define TRUE 1
 #define FALSE 0
@@ -28,25 +29,25 @@ struct head {
 };
 
 struct head *after(struct head *block){
-    return (struct head*)(block + (HEAD + block->size));
+    return (struct head*)(HIDE(block)+block->size);
 }
 
 struct head *before(struct head *block){
-    return (struct head*)(block - (HEAD + block->bsize));
+    return (struct head*)(MAGIC(block) - block->bsize);
 }
 
 struct head *split(struct head *block, int size){
     int rsize = block->size - (HEAD + size);
-    block->size = rsize;
+    block->size = size;
 
     struct head *splt = after(block);
     splt->bfree = block->free;
     splt->bsize = block->size;
     splt->free = TRUE;
-    splt->size = size;
+    splt->size = rsize;
 
     struct head *aft = after(splt);
-    aft->bsize = size;
+    aft->bsize = splt->size;
 
     return splt;
 }
@@ -58,35 +59,31 @@ struct head *new(){
         printf("one arena already allocated \n");
         return NULL;
     }
-
-    struct head *new = mmap(NULL, ARENA, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    struct head *new = mmap(NULL, ARENA, PROT_READ | PROT_WRITE, MAP_PRIVATE | 0x20, -1, 0);
 
     if(new == MAP_FAILED){
         printf("mmap failed: error %d\n", errno);
         return NULL;
     }
-
     /* make room for head and dummy*/
     uint32_t size = ARENA - 2*HEAD;
 
-    new->bfree = NULL;
-    new->bsize = NULL;
+    new->bfree = FALSE;
+    new->bsize = FALSE;
     new->free  = FALSE;
     new->size  = size;
-
+    
     struct head *sentinel = after(new);
 
     sentinel->bfree = new->free;
     sentinel->bsize = new->size;
     sentinel->free  = FALSE;
     sentinel->size  = 0;
-
     arena = (struct head*)new;
-
     return new;
 }
 
-struct head *flist;
+struct head *flist = NULL;
 
 void detach(struct head *block){
     if(block->next != NULL){
@@ -113,8 +110,10 @@ int adjust(int request){
 }
 
 struct head *find(int size){
+    if(flist == NULL) insert(new());
     struct head *current = flist;
-    while(size < current->size){
+    while(size > current->size){
+        if(current->next == NULL) return NULL;
         current = current->next;
     }
     detach(current);
@@ -147,6 +146,30 @@ void dfree(void *memory){
         struct head *aft = after(block);
         block->free = TRUE;
         aft->bfree = TRUE;
+        insert(block);
     }
+    return;
+}
+
+void sanity(){
+    if(flist == NULL) return;
+    struct head *current = flist;
+    while(current->next != NULL){
+        if(current->free == FALSE){
+            printf("Occupied heap-space in freelist at %p\n",current); 
+            return;
+        }
+        if(current->size%ALIGN != 0){ 
+            printf("Size of heap-block is unaligned at %p\n",current); 
+            return;
+        }
+        if(current->next->prev != current){ 
+            printf("Prev-pointer of heap-block at %p is faulty\n",current->next); 
+            return;
+        }
+
+        current = current->next;
+    }
+    printf("Sanitycheck completed\n");
     return;
 }
