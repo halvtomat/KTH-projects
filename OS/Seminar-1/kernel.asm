@@ -1,8 +1,17 @@
 bits 32
+
 global start
- 
+extern main 
+
 section .text
  
 start:
-    mov dword   [0xB8000], 0x2F4B2F4F
+    cli
+    mov esp, stack
+    call main
     hlt
+
+section .bss
+
+resb    8192
+stack:

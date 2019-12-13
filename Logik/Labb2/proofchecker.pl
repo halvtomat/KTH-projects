@@ -91,7 +91,7 @@ check_rule([[N,neg(X),mt(R1,R2)]|T]):-              %Modus Tollens
     check_rule(T).
 check_rule([[_,or(X,neg(X)),lem]|T]):-              %Law of Excluded Middle
     check_rule(T).
-%––––––––––––––––––––––––––––––––––––––––––––––––––––Box time–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––:
+%––––––––––––––––––––––––––––––––––––––––––––––––––––Box–time–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––:
 check_rule([[[N,X,assumption]|T1]|T2]):-                                                                                 %|
     proof_db(Proo),                                 %Get our proof                                                       %|
     append(Proo,[[N,X,assumption]|T1],Prootemp),    %Create a new list with the proof + the proof within the box         %|
