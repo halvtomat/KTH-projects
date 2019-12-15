@@ -94,11 +94,11 @@ void detach(struct head *block){
         block->prev->next = block->next;
         block->next = NULL;
         block->prev = NULL;
-    }else if(block->next != NULL){
-        block->next->prev == NULL;
+    }else if(block->next != NULL && block->prev == NULL){
+        block->next->prev = NULL;
         flist = block->next;
         block->next = NULL;
-    }else if(block->prev != NULL){
+    }else if(block->prev != NULL && block->next == NULL){
         block->prev->next = NULL;
         block->prev = NULL;
     }else{
@@ -107,6 +107,7 @@ void detach(struct head *block){
 }
 
 void insert(struct head *block){
+    
     block->next = flist;
     block->prev = NULL;
     if(flist != NULL){
@@ -135,7 +136,6 @@ struct head *find(int size){
         current->free = FALSE;
         after(current)->bfree = FALSE;
     }
-
     return current;
 }
 
@@ -153,11 +153,20 @@ struct head *merge(struct head *block){
         block = bef;
     }
 
-    if(aft->free == TRUE){
+    if(aft->free == TRUE){  
+        /*printf("aftBlock info:\n\tadrs: %p\n\tbfre: %d\n\tbsiz: %d\n\tfree: %d\n\tsize: %d\n\tnext: %p\n\tprev: %p\n\n"
+        ,aft,aft->bfree,aft->bsize,aft->free,aft->size,aft->next,aft->prev);*/
         detach(aft);
         int nsize = block->size + aft->size + HEAD;
+        struct head *aftaft = after(aft);
+        aftaft->bfree = FALSE;
+        aftaft->bsize = nsize;
+        aft->free = FALSE;
         block->size = nsize;
     }
+    block->free = TRUE;
+    after(block)->bfree = TRUE;
+    after(block)->bsize = block->size;
     /*printf("FINISHED MERGE BLOCK info:\n\tadrs: %p\n\tbfre: %d\n\tbsiz: %d\n\tfree: %d\n\tsize: %d\n\tnext: %p\n\tprev: %p\n\n"
     ,block,block->bfree,block->bsize,block->free,block->size,block->next,block->prev);*/
     return block;
@@ -183,9 +192,6 @@ void dfree(void *memory){
     if(memory != NULL){
         struct head *block = MAGIC(memory);
         block = merge(block);
-        struct head *aft = after(block);
-        block->free = TRUE;
-        aft->bfree = TRUE;
         insert(block);
     }
     return;
@@ -218,7 +224,10 @@ void sanity(){
             printf("\tPrev pointer: %p\n\tShould be: %p\n",current->next->prev,current);
             return;
         }
-        printf("Block %d sane\n\n",n);
+        if(current->bfree){
+            printf("Block %d before is free but not merged\n",n);
+            return;
+        }
         
         if(current->next != NULL) current = current->next;
         else break;
@@ -227,8 +236,8 @@ void sanity(){
     return;
 }
 
-int main(){
-    int VARIABLE = 11;
+/*int main(){
+    int VARIABLE = 22;
     int *buff[VARIABLE];
     for(int i = 0; i < VARIABLE; i++){
         buff[i] = NULL;
@@ -236,14 +245,20 @@ int main(){
     for(int i = 0; i < VARIABLE*2; i++){
         int index = rand() % VARIABLE;
         if(buff[index] != NULL){
-            printf("freeing %d\n",index);
+            //printf("freeing %d\n",index);
             dfree(buff[index]);
         }
         int size = rand() % 128;
-        printf("index: %d  ",index);
+        //printf("______________________________________________________\nindex: %d  ",index);
+        //sanity();
         int* mem = dalloc(size+i);
-        if(mem == NULL) sanity();
+        if(mem == NULL){
+            printf("MEMORY = NULL----------------------------\n");
+            //sanity();
+            return(1);
+        }
         buff[index] = mem;
         }
     sanity();
-}
+    return(0);
+}*/
