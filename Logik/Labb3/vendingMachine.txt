@@ -1,0 +1,16 @@
+
+[
+    [start,[chose]],
+    [chose,[start,chose,notenough,confirm]],
+    [notenough,[start,chose,notenough,confirm]],
+    [confirm,[start,chose,change]],
+    [change,[start]]
+].
+
+[
+    [start,[insert_money]],
+    [chose,[cancel,chose_product,insert_money]],
+    [notenough,[cancel,insert_money,undo]],
+    [confirm,[cancel,confirm,undo]],
+    [change,[donate,cancel]]
+].
