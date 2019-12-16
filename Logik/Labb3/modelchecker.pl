@@ -45,6 +45,14 @@ check(T,L,S,[],or(_,Y)) :-  % Checks if _ or Y exists within a state.
     check(T,L,S,[],Y).      % Checks if Y exists in the state. 
 
 % AX
+check(T,L,S,U,ax(X)):-      % Checks if all the neighboring states contain X.
+  member([S,T1], T),        % From this line we will get a list with all adjacent states of S.
+  ax_util(T,L,T1,U,X).      % Call ax_util to iterate through the list of adjacent states.
+
+ax_util(_,_,[],_,_).        % Base case, when the adjacency-list is empty, we are done.
+ax_util(T,L,[S|Tail],U,X) :-% Iterates the adjacency-list to check if X exist.
+  check(T,L,S,U,X),         % Checks if X exists in the state S.
+  ax_util(T,L,Tail,U,X).    % Call ax_util again with the Tail of the adjacnecy-list.
 % EX
 check(T,L,S,U,ex(X)) :-     % Checks if there is any next state where X exists.
     member([S,T1],T),       % From this line we will get a list of all the adjacent states T1 of S.
@@ -63,16 +71,16 @@ check(T,L,S,U,eg(X)) :-             % Checks if there is a path where it's alway
     check(T,L,S,[],X),              % Checks if X is a label in the current state.
     check(T,L,S,[S|U],ex(eg(X))).   % Adds our current satte in the list U of already evaluated states and then continue to evalutate on the next state.
 % AF
-check(T,L,S,U,af(X)) :-             % 
-  \+ member(S, U),                  % 
-  check(T,L,S,[],X).                % 
-check(T,L,S,U,af(X)) :-             % 
-  \+ member(S,U),                   % 
-  check(T,L,S,[S|U],ax(af(X))).     % 
+check(T,L,S,U,af(X)) :-             % Checks if we eventually end up at X.
+  \+ member(S, U),                  % Checks if we have NOT been in S before. This is to stop an endless cycle to occure.
+  check(T,L,S,[],X).                % Checks if X exists in S.
+check(T,L,S,U,af(X)) :-             % Checks if we eventually end up at X.
+  \+ member(S,U),                   % Checks if we have NOT been in S before. This is to stop an endless cycle to occure.
+  check(T,L,S,[S|U],ax(af(X))).     % Checks if X eventually shows up in ALL the adjacent states of S. 
 % EF
-check(T,L,S,U,ef(X)) :-
-  \+ member(S,U),
-  check(T,L,S,[],X).
-check(T,L,S,U,ef(X)):-
-  \+ member(S,U),
-  check(T,L,S,[S|U],ex(ef(X))).
+check(T,L,S,U,ef(X)) :-             % Checks if there is a path such as we eventually get to X.
+  \+ member(S,U),                   % Checks if we have NOT been in S before. This is to stop an endless cycle to occure.
+  check(T,L,S,[],X).                % Checks if X exists in S.
+check(T,L,S,U,ef(X)):-              % Checks if there is a path such as we eventually get to X.
+  \+ member(S,U),                   % Checks if we have NOT been in S before. This is to stop an endless cycle to occure.
+  check(T,L,S,[S|U],ex(ef(X))).     % Checks if X eventually shows up in ANY of the adjacent states of S.
