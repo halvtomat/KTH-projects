@@ -22,15 +22,11 @@ int main(int argc, char const *argv[]){
     for(int i = 0; i < ROUNDS; i++){
         for(int j = 0; j < LOOP; j++){
             int index = rand() % BUFFER;
-            //printf("index: %d\n",index);
             if(buffer[index] != NULL){
-                //printf("we boutta free buffer[%d] wich is at %p\n\n", index, buffer[index]);
                 dfree(buffer[index]);
             }
-            size_t size = (size_t)request();
-//sanity();            
+            size_t size = (size_t)request();        
             int *memory;
-            //printf("dalloc(%ld)\n\n",size);
             memory = dalloc(size);
 
             if(memory == NULL){
@@ -39,7 +35,6 @@ int main(int argc, char const *argv[]){
                 return(1);
             }
             buffer[index] = memory;
-            /* writing to the memory so we know it exists */
             *memory = 123;
         }
         
