@@ -48,7 +48,6 @@ struct head* PREV(struct head *block){
 
 uint32_t ADRS(struct head *block){
     uint32_t i = (uint64_t)block - (uint64_t)arena;
-    //printf("finding ADRS offset, %p - %p = %d\n",block,arena,i);
     return (uint32_t)i;
 }
 
@@ -77,8 +76,6 @@ struct head *split(struct head *block, int size){
     struct head *aft = after(splt);
     aft->bsize = splt->size;
 
-    /*printf("NEW SPLIT Block info:\n\tadrs: %p\n\tbfre: %d\n\tbsiz: %d\n\tfree: %d\n\tsize: %d\n\tnext: %p\n\tprev: %p\n\n"
-    ,splt,splt->bfree,splt->bsize,splt->free,splt->size,NEXT(splt),PREV(splt));*/
     return splt;
 }
 
@@ -137,9 +134,7 @@ void insert(struct head *block){
     block->prev = 1;
     if(flist != NULL){
         block->next = ADRS(flist);
-        //printf("new pointer: %p\n", NEXT(block));
         flist->prev = ADRS(block);
-        //printf("new pointer: %p\n", PREV(flist));
     }
     flist = block;
 }
@@ -159,8 +154,6 @@ struct head *find(int size){
     }
     detach(current);
     if(current->size >= size + (HEAD + ALIGN)){
-        /*printf("FIND INSERTING Block info:\n\tadrs: %p\n\tbfre: %d\n\tbsiz: %d\n\tfree: %d\n\tsize: %d\n\tnext: %p\n\tprev: %p\n\n"
-        ,current,current->bfree,current->bsize,current->free,current->size,NEXT(current),PREV(current));*/
         insert(split(current, size));
     }else{
         current->free = FALSE;
@@ -171,12 +164,8 @@ struct head *find(int size){
 
 struct head *merge(struct head *block){
     struct head *aft = after(block);
-    /*printf("curBlock info:\n\tadrs: %p\n\tbfre: %d\n\tbsiz: %d\n\tfree: %d\n\tsize: %d\n\tnext: %p\n\tprev: %p\n\n"
-    ,block,block->bfree,block->bsize,block->free,block->size,block->next,block->prev);*/
     if(block->bfree == TRUE){
         struct head *bef = before(block);
-    /*printf("befBlock info:\n\tadrs: %p\n\tbfre: %d\n\tbsiz: %d\n\tfree: %d\n\tsize: %d\n\tnext: %p\n\tprev: %p\n\n"
-    ,bef,bef->bfree,bef->bsize,bef->free,bef->size,bef->next,bef->prev);*/
         detach(bef);
         int nsize = block->size + bef->size + HEAD;
         bef->size = nsize;
@@ -184,8 +173,6 @@ struct head *merge(struct head *block){
     }
 
     if(aft->free == TRUE){  
-        /*printf("aftBlock info:\n\tadrs: %p\n\tbfre: %d\n\tbsiz: %d\n\tfree: %d\n\tsize: %d\n\tnext: %p\n\tprev: %p\n\n"
-        ,aft,aft->bfree,aft->bsize,aft->free,aft->size,aft->next,aft->prev);*/
         detach(aft);
         int nsize = block->size + aft->size + HEAD;
         struct head *aftaft = after(aft);
@@ -197,8 +184,6 @@ struct head *merge(struct head *block){
     block->free = TRUE;
     after(block)->bfree = TRUE;
     after(block)->bsize = block->size;
-    /*printf("FINISHED MERGE BLOCK info:\n\tadrs: %p\n\tbfre: %d\n\tbsiz: %d\n\tfree: %d\n\tsize: %d\n\tnext: %p\n\tprev: %p\n\n"
-    ,block,block->bfree,block->bsize,block->free,block->size,block->next,block->prev);*/
     return block;
 }
 
@@ -212,8 +197,6 @@ void *dalloc(size_t request){
         fprintf(stderr,"Failed to find large enough block\n");
         return NULL;
     }else{
-        /*printf("DALLOC Block info:\n\tadrs: %p\n\tbfre: %d\n\tbsiz: %d\n\tfree: %d\n\tsize: %d\n\tnext: %p\n\tprev: %p\n\n"
-        ,taken,taken->bfree,taken->bsize,taken->free,taken->size,NEXT(taken),PREV(taken));*/
         return HIDE(taken);
     }
 }
@@ -222,8 +205,6 @@ void dfree(void *memory){
     if(memory != NULL){
         struct head *block = MAGIC(memory);
         block = merge(block);
-        /*printf("FREE Block info:\n\tadrs: %p\n\tbfre: %d\n\tbsiz: %d\n\tfree: %d\n\tsize: %d\n\tnext: %p\n\tprev: %p\n\n"
-        ,block,block->bfree,block->bsize,block->free,block->size,NEXT(block),PREV(block));*/
         insert(block);
     }
     return;
@@ -267,31 +248,3 @@ void sanity(){
     printf("Sanitycheck completed\n");
     return;
 }
-
-/*int main(){
-    int VARIABLE = 50;
-    int *buff[VARIABLE];
-    for(int i = 0; i < VARIABLE; i++){
-        buff[i] = NULL;
-    }
-    for(int i = 0; i < VARIABLE*2; i++){
-        int index = rand() % VARIABLE;
-        //sanity();
-        if(buff[index] != NULL){
-            //printf("freeing %d\n",index);
-            dfree(buff[index]);
-        }
-        int size = rand() % 128;
-        //printf("______________________________________________________\nindex: %d  ",index);
-        
-        int* mem = dalloc(size+i);
-        if(mem == NULL){
-            printf("MEMORY = NULL----------------------------\n");
-            //sanity();
-            return(1);
-        }
-        buff[index] = mem;
-        }
-    sanity();
-    return(0);
-}*/
