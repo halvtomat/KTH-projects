@@ -35,14 +35,14 @@ check(_,L,S,[],neg(X)) :-   % Same as above but negated.
 % And
 check(T,L,S,[],and(X,Y)) :- % Checks if both the labels X and Y exists within a state.
     check(T,L,S,[],X),      % Checks if X exists in the state.
-    check(T,L,S,[],Y).      % Checks if Y exists in the state.
+    check(T,L,S,[],Y),!.    % Checks if Y exists in the state.
 
 % Or
 check(T,L,S,[],or(X,_)) :-  % Checks if X or _ exists within a state.
-    check(T,L,S,[],X).      % Checks if X exists in the state.
+    check(T,L,S,[],X),!.    % Checks if X exists in the state.
 % Or twin
 check(T,L,S,[],or(_,Y)) :-  % Checks if _ or Y exists within a state.
-    check(T,L,S,[],Y).      % Checks if Y exists in the state. 
+    check(T,L,S,[],Y),!.    % Checks if Y exists in the state. 
 
 % AX
 check(T,L,S,U,ax(X)):-      % Checks if all the neighboring states contain X.
@@ -51,7 +51,7 @@ check(T,L,S,U,ax(X)):-      % Checks if all the neighboring states contain X.
 
 ax_util(_,_,[],_,_).        % Base case, when the adjacency-list is empty, we are done.
 ax_util(T,L,[S|Tail],U,X) :-% Iterates the adjacency-list to check if X exist.
-  check(T,L,S,U,X),         % Checks if X exists in the state S.
+  check(T,L,S,U,X),!,       % Checks if X exists in the state S.
   ax_util(T,L,Tail,U,X).    % Call ax_util again with the Tail of the adjacnecy-list.
 % EX
 check(T,L,S,U,ex(X)) :-     % Checks if there is any next state where X exists.
@@ -66,7 +66,7 @@ check(T,L,S,U,ag(X)) :-         % Checks if next state is always X.
   check(T,L,S,[S|U],ax(ag(X))). % Adds our current state in the list U of already evaluated states and then continue to evaluate on the next state.
 % EG
 check(_,_,S,U,eg(_)) :-             % Base case.
-    member(S,U).                    % Checks if our current state exists in the list U of already evaluated states.
+    member(S,U),!.                  % Checks if our current state exists in the list U of already evaluated states.
 check(T,L,S,U,eg(X)) :-             % Checks if there is a path where it's always X.
     check(T,L,S,[],X),              % Checks if X is a label in the current state.
     check(T,L,S,[S|U],ex(eg(X))).   % Adds our current satte in the list U of already evaluated states and then continue to evalutate on the next state.
