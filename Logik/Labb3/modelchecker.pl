@@ -31,19 +31,16 @@ check(_,L,S,[],X) :-        % Checks if a label exists within a state.
 check(_,L,S,[],neg(X)) :-   % Same as above but negated.
     member([S,L1],L),       % L1 is a list of all the labels in this state.
     \+member(X,L1).         % Is X not a member of L1?
-
 % And
 check(T,L,S,[],and(X,Y)) :- % Checks if both the labels X and Y exists within a state.
     check(T,L,S,[],X),      % Checks if X exists in the state.
     check(T,L,S,[],Y),!.    % Checks if Y exists in the state.
-
 % Or
 check(T,L,S,[],or(X,_)) :-  % Checks if X or _ exists within a state.
     check(T,L,S,[],X),!.    % Checks if X exists in the state.
 % Or twin
 check(T,L,S,[],or(_,Y)) :-  % Checks if _ or Y exists within a state.
     check(T,L,S,[],Y),!.    % Checks if Y exists in the state. 
-
 % AX
 check(T,L,S,U,ax(X)):-      % Checks if all the neighboring states contain X.
   member([S,T1], T),        % From this line we will get a list with all adjacent states of S.
