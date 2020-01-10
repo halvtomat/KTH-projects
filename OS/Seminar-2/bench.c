@@ -6,7 +6,7 @@
 
 
 #define ROUNDS 1
-#define LOOPS 1000
+#define LOOPS 10000
 
 int main(int argc, char const *argv[]){
     clock_t start,end;

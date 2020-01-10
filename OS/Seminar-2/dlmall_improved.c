@@ -1,3 +1,27 @@
+/*
+In this version 4 byte pointers are used in the free list (flist), 
+the 4 most significant bytes of the next & prev pointers in the head struct
+then every time the pointers are used the 4 bytes are re-instated.
+Overhead of free blocks reduced by 8 bytes.
+
+A new struct "taken" wich is usedinstead of "head" on blocks that
+are not free (hence taken).
+Taken doesn't have the prev and next pointers because it will never
+be in the free list.
+Overhead of taken blocks reduced by another 8 bytes.
+
+I tried the best-fit, worst-fit and first-fit approaches in this code,
+currently the first-fit approach is in use and best and worst-fit
+is commented away.
+When running benchmarks, best-fit was more than twice as slow
+as first fit, worst-fit was more than 4 times as slow.
+
+Benchmarks show that this "improved" version is about 18% slower than
+the non "improved" one.
+The real improvement is the much lower overhead, this version would be
+more suited for a machine with a small memory.
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -19,6 +43,8 @@
 #define ALIGN 8
 #define ARENA (64*1024)
 
+
+
 struct head {
     uint16_t bfree; //  2 bytes, the status of block before
     uint16_t bsize; //  2 bytes, the size of block before
@@ -28,7 +54,7 @@ struct head {
     uint32_t prev;  //  4 bytes pointer
 };
 
-struct head *arena = NULL;
+static struct head *arena = NULL;
 
 struct taken {
     uint16_t bfree; //  2 bytes, the status of block before
@@ -37,49 +63,69 @@ struct taken {
     uint16_t size;  //  2 bytes, the size (max 2^16 i.e. 64Ki byte)
 };
 
-struct head* NEXT(struct head *block){
+/*
+NEXT is used to translate the 32bit addresses created by ADRS
+to reduce overhead, into the full 64bit address it represents.
+*/
+static struct head* NEXT(struct head *block){
     char *p = (char *)arena + block->next;
     return (struct head*)p;
 }
-struct head* PREV(struct head *block){
+
+/*
+PREV is used to translate the 32bit addresses created by ADRS
+to reduce overhead, into the full 64bit address it represents.
+*/
+static struct head* PREV(struct head *block){
     char *p = (char *)arena + block->prev;
     return (struct head*)p;
 }
 
-uint32_t ADRS(struct head *block){
+/*
+ADRS compresses the "real" 64bit address of the head pointer 
+to a 32bit pointer consisting of the 32 least significant bits.
+The heap will never grow beyond a 32bit address-space so the 
+most significant bits will always be the same.
+
+This buys us 8 bytes in terms of reduced overhead 
+for the head struct.
+
+To translate back to the full 64bit address, use functions NEXT & PREV.
+
+*/
+static uint32_t ADRS(struct head *block){
     uint32_t i = (uint64_t)block - (uint64_t)arena;
     return (uint32_t)i;
 }
 
-struct head *after(struct head *block){
+static struct head *after(struct head *block){
     return (struct head*)(HIDE(block) + block->size);
 }
 
-struct head *before(struct head *block){
+static struct head *before(struct head *block){
     char *p = (char *)block - HEAD - block->bsize;
     return (struct head*)p;
 }
 
-struct head *split(struct head *block, int size){
+static struct head *split(struct head *block, int size){
     int rsize = block->size - (HEAD + size);
     block->size = size;
     block->free = FALSE;
 
     struct head *splt = after(block);
-    splt->bfree = block->free;
-    splt->bsize = block->size;
+    splt->bfree = FALSE;
+    splt->bsize = size;
     splt->free = TRUE;
     splt->size = rsize;
     splt->next = 1;
     splt->prev = 1;
 
-    struct head *aft = after(splt);
-    aft->bsize = splt->size;
+    after(splt)->bsize = rsize;
 
     return splt;
 }
 
-struct head *new(){
+static struct head *new(){
     if(arena != NULL){
         printf("one arena already allocated \n");
         return NULL;
@@ -109,49 +155,93 @@ struct head *new(){
     return new;
 }
 
-struct head *flist = NULL;
+static struct head *flist = NULL;
 
-void detach(struct head *block){
-    if(block->next != 1 && block->prev != 1){
+static void detach(struct head *block){
+    if(block->next != ADRS(block)){
+        if(flist == block) flist = NEXT(block);
         NEXT(block)->prev = block->prev;
         PREV(block)->next = block->next;
-    }else if(block->next != 1 && block->prev == 1){
-        NEXT(block)->prev = 1;
-        flist = NEXT(block);
-    }else if(block->prev != 1 && block->next == 1){
-        PREV(block)->next = 1;
     }else{
         flist = NULL;
     }
     block->next = 1;
     block->prev = 1;
-    
 }
 
-void insert(struct head *block){
-    
-    block->next = 1;
-    block->prev = 1;
+static void insert(struct head *block){
     if(flist != NULL){
-        block->next = ADRS(flist);
-        flist->prev = ADRS(block);
+        if(NEXT(flist) != flist){
+            block->prev = flist->prev;
+            block->next = ADRS(flist);
+            flist->prev = ADRS(block);
+            PREV(block)->next = flist->prev;
+        }
+        else{
+            block->next = ADRS(flist);
+            block->prev = block->next;
+            flist->next = ADRS(block);
+            flist->prev = flist->next;
+        }
+    }
+    else{
+        block->next = ADRS(block);
+        block->prev = ADRS(block);
     }
     flist = block;
 }
 
-int adjust(int request){
+
+static int adjust(int request){
     return (int)((request/ALIGN + 1) * ALIGN);
 }
 
-struct head *find(int size){
+static struct head *find(int size){
     if(flist == NULL){
         insert(new());
     }
     struct head *current = flist;
+
+    
+    //FIRST-FIT APPROACH
     while(size > current->size){
-        if(current->next == 1) return NULL;
+        if(current->next == ADRS(flist)) return NULL;
         current = NEXT(current);
     }
+    
+    
+    /*
+    //BEST-FIT APPROACH
+    struct head *best_fit = NULL;
+    while(1){
+        if(size < current->size){
+            if(best_fit == NULL) best_fit = current;
+            else if(current->size < best_fit->size) best_fit = current;
+        }
+        if(current->next == ADRS(flist)){
+            if(best_fit == NULL) return NULL;
+            current = best_fit;
+            break;
+        }
+        current = NEXT(current);
+    }
+    */
+    /*
+    //WORST-FIT APPROACH
+    struct head *worst_fit = NULL;
+    while(1){
+        if(size < current->size){
+            if(worst_fit == NULL) worst_fit = current;
+            else if(current->size > worst_fit->size) worst_fit = current;
+        }
+        if(current->next == ADRS(flist)){
+            if(worst_fit == NULL) return NULL;
+            current = worst_fit;
+            break;
+        }
+        current = NEXT(current);
+    }
+    */
     detach(current);
     if(current->size >= size + (HEAD + ALIGN)){
         insert(split(current, size));
@@ -162,7 +252,7 @@ struct head *find(int size){
     return current;
 }
 
-struct head *merge(struct head *block){
+static struct head *merge(struct head *block){
     struct head *aft = after(block);
     if(block->bfree == TRUE){
         struct head *bef = before(block);
@@ -187,21 +277,21 @@ struct head *merge(struct head *block){
     return block;
 }
 
-void *dalloc(size_t request){
+void *dalloc2(size_t request){
     if(request <= 0){
         return NULL;
     }
     int size = adjust(request);
-    struct head *taken = find(size);
+    struct head *taken = find(size); //TODO: FIX TAKEN TO ACCTUALLY BE USED
     if(taken == NULL){
         fprintf(stderr,"Failed to find large enough block\n");
         return NULL;
     }else{
-        return HIDE(taken);
+        return HIDE(taken); //TODO: HIDE HIDES TO MUCH
     }
 }
 
-void dfree(void *memory){
+void dfree2(void *memory){
     if(memory != NULL){
         struct head *block = MAGIC(memory);
         block = merge(block);
@@ -210,7 +300,7 @@ void dfree(void *memory){
     return;
 }
 
-void sanity(){
+void sanity2(){
     if(flist == NULL) return;
     struct head *current = flist;
     int n = 0;
@@ -241,8 +331,8 @@ void sanity(){
             printf("Block %d before is free but not merged\n",n);
             return;
         }
-        if(n >= 10) break;
-        if(current->next != 1) current = NEXT(current);
+        //if(n >= 10) break;
+        if(current->next != ADRS(flist)) current = NEXT(current);
         else break;
     };
     printf("Sanitycheck completed\n");
