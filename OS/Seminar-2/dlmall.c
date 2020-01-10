@@ -29,16 +29,16 @@ struct head {
 };
 
 
-struct head *after(struct head *block){
+static struct head *after(struct head *block){
     return (struct head*)(HIDE(block) + block->size);
 }
 
-struct head *before(struct head *block){
+static struct head *before(struct head *block){
     char *p = (char *)block - HEAD - block->bsize;
     return (struct head*)p;
 }
 
-struct head *split(struct head *block, int size){
+static struct head *split(struct head *block, int size){
     int rsize = block->size - (HEAD + size);
     block->size = size;
     block->free = FALSE;
@@ -55,9 +55,9 @@ struct head *split(struct head *block, int size){
     return splt;
 }
 
-struct head *arena = NULL;
+static struct head *arena = NULL;
 
-struct head *new(){
+static struct head *new(){
     if(arena != NULL){
         printf("one arena already allocated \n");
         return NULL;
@@ -87,9 +87,9 @@ struct head *new(){
     return new;
 }
 
-struct head *flist = NULL;
+static struct head *flist = NULL;
 
-void detach(struct head *block){
+static void detach(struct head *block){
     if(block->next != NULL && block->prev != NULL){
         block->next->prev = block->prev;
         block->prev->next = block->next;
@@ -107,7 +107,7 @@ void detach(struct head *block){
     }
 }
 
-void insert(struct head *block){
+static void insert(struct head *block){
     
     block->next = flist;
     block->prev = NULL;
@@ -117,11 +117,11 @@ void insert(struct head *block){
     flist = block;
 }
 
-int adjust(int request){
+static int adjust(int request){
     return (int)((request/ALIGN + 1) * ALIGN);
 }
 
-struct head *find(int size){
+static struct head *find(int size){
     if(flist == NULL){
         insert(new());
     }
@@ -140,7 +140,7 @@ struct head *find(int size){
     return current;
 }
 
-struct head *merge(struct head *block){
+static struct head *merge(struct head *block){
     struct head *aft = after(block);
     if(block->bfree == TRUE){
         struct head *bef = before(block);
