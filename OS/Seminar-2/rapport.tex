@@ -1,1 +1,50 @@
-\documentClass{}
+\documentclass[11pt]{article}
+
+\title{Next, previous, before and after}
+\date{2020-01-13}
+\author{Daniel Gustafsson}
+
+\begin{document}
+
+\maketitle
+\pagenumbering{gobble}
+
+\newpage
+\pagenumbering{arabic}
+
+\section{Introduction}
+
+Everyone who has ever tried programming in C should have heard of "malloc" and "free", these two functions provide a way for the programmer to easily
+allocate memory on the heap of a process. Modern day memory management is fast and efficient, but what acctually goes on under the hood of the
+operating system when a process calls "malloc"? In this report I will create my own heap manager similar to "malloc" and explore different aspects 
+approaches, can i make it really space-efficient? Will it have a speed payoff? Continue reading and you will find answers.
+
+\section{Background}
+
+To create your own heap manager, you first need to understand how a heap manager works. The traditional way is to have a linked list data-structure 
+where you keep all the free blocks from your heap, then when the process wants to allocate something the manager finds a free block with appropriate
+size and returns the virtual memory address. Later when (hopefully) "free" is called by the process, the manager will put the newly freed block 
+back in the list of free blocks. To make this possible we need to implement a couple things. Firstly we need to get memory from the operating system
+, we can do this with the "mmap" system call, we should get as much memory as we think the process will use right from the start because 
+calling the system to get more all the time would be very performance costly. Now we need a header with some information to be stored in every block
+on the heap. To start, the header should contain the following information,
+\begin{itemize}
+    \item Free - if the block is free or taken
+    \item Size - the size of the block
+    \item Bfree - if the block before is free or taken
+    \item Bsize - the size of the block before
+    \item Next - pointer to the next block in the list
+    \item Prev - pointer to the previous block in the list
+\end{itemize}
+
+When a block is requested by the process, we need to make sure the process wont get a block that is 
+
+\section{Method}
+
+this is how i did it
+
+\section{Results}
+
+this is the results
+
+\end{document}
