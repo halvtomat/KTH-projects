@@ -37,11 +37,17 @@ on the heap. To start, the header should contain the following information,
     \item Prev - pointer to the previous block in the list
 \end{itemize}
 
-When a block is requested by the process, we need to make sure the process wont get a block that is 
+When a block is requested, the manager needs to make sure the block is of appropriatesize, neither too small nor too big. A block that is too small would
+quickly result in a segmentation fault, if the manager keeps giving out blocks that are too big the memory will run out (internal fragmentation). To solve this the manager tries
+always looks for a block that is bigger than the one requested and then if it is too big split it into two smaller blocks. This creates a new problem,
+after a while all blocks will be really small becuase of the splitting (external fragmentation) to solve this the manager will try to merge neighboring 
+blocks when they are freed. This is the reason for each block to contain information about the block before it, to get the block after the current one in
+memory, just check the block that is 'sizeof(header) + size' after it. To get the block before, check the address that is '-(sizeof(header) + Bsize)' before it.
+
 
 \section{Method}
 
-this is how i did it
+I focused my improvements 
 
 \section{Results}
 

@@ -43,16 +43,16 @@ more suited for a machine with a small memory.
 #define ALIGN 8
 #define ARENA (64*1024)
 
+
 struct head {
-    uint16_t bfree; //  2 bytes, the status of block before
-    uint16_t bsize; //  2 bytes, the size of block before
-    uint16_t free;  //  2 bytes, the status of the block
-    uint16_t size;  //  2 bytes, the size (max 2^16 i.e. 64Ki byte)
+    uint16_t bsize; //  2 bytes, the size of block before LSB = Bfree
+    uint16_t size;  //  2 bytes, the size (max 2^16 i.e. 64Ki byte) LSB = Free
     uint32_t next;  //  4 bytes pointer
-    uint32_t prev;  //  4 bytes pointer
 };
 
 static struct head *arena = NULL;
+
+static struct head *flist = NULL;
 
 struct taken {
     uint16_t bfree; //  2 bytes, the status of block before
@@ -67,15 +67,6 @@ to reduce overhead, into the full 64bit address it represents.
 */
 static struct head* NEXT(struct head *block){
     char *p = (char *)arena + block->next;
-    return (struct head*)p;
-}
-
-/*
-PREV is used to translate the 32bit addresses created by ADRS
-to reduce overhead, into the full 64bit address it represents.
-*/
-static struct head* PREV(struct head *block){
-    char *p = (char *)arena + block->prev;
     return (struct head*)p;
 }
 
@@ -96,29 +87,60 @@ static uint32_t ADRS(struct head *block){
     return (uint32_t)i;
 }
 
+void sanity2(){
+    if(flist == NULL) return;
+    struct head *current = flist;
+    int n = 0;
+    while(1){
+        printf("Block %d info:\n\tadrs: %p\n\tbfre: %d\n\tbsiz: %d\n\tfree: %d\n\tsize: %d\n\tnext: %p\n\n"
+        ,++n,current,current->bsize & 0x1,current->bsize & 0xFFFE,current->size & 0x1,current->size & 0xFFFE,NEXT(current));
+
+        if(current->size & 0x1 == FALSE){
+            printf("Occupied heap-space in freelist at %p\n",current);
+            return;
+        }
+        if((current->size & 0xFFFE )%ALIGN != 0){ 
+            printf("Size of heap-block is unaligned at %p\n",current);
+            return;
+        }
+        if((current->size & 0xFFFE ) == 0){ 
+            printf("Size of heap-block is zero at %p\n",current);
+            return;
+        }
+        if(current->bsize & 0x1){
+            printf("Block %d before is free but not merged\n",n);
+            return;
+        }
+        //if(n >= 10) break;
+        if(current->next != ADRS(flist)) current = NEXT(current);
+        else break;
+    };
+    printf("Sanitycheck completed\n");
+    return;
+}
+
+
 static struct head *after(struct head *block){
-    return (struct head*)(HIDE(block) + block->size);
+    return (struct head*)(HIDE(block) + (block->size & 0xFFFE ));
 }
 
 static struct head *before(struct head *block){
-    char *p = (char *)block - HEAD - block->bsize;
+    char *p = (char *)block - HEAD - (block->bsize & 0xFFFE);
     return (struct head*)p;
 }
 
 static struct head *split(struct head *block, int size){
-    int rsize = block->size - (HEAD + size);
-    block->size = size;
-    block->free = FALSE;
+    int rsize = (block->size & 0xFFFE ) - (HEAD + size);
+    block->size = (block->size & 0x1) | size;
+    block->size &= 0xFFFE; //free = 0;
 
     struct head *splt = after(block);
-    splt->bfree = FALSE;
-    splt->bsize = size;
-    splt->free = TRUE;
-    splt->size = rsize;
-    splt->next = 1;
-    splt->prev = 1;
+    splt->bsize &= 0xFFFE; //bfree = 0;
+    splt->size |= 0x1;  //free = 1;
+    splt->bsize = block->size;
+    splt->size = (splt->size & 0x1) | rsize;
 
-    after(splt)->bsize = rsize;
+    after(splt)->bsize = splt->size;
 
     return splt;
 }
@@ -135,57 +157,44 @@ static struct head *new(){
         return NULL;
     }
     /* make room for head and dummy*/
-    uint32_t size = ARENA - 2*HEAD;
-
-    new->bfree = FALSE;
+    uint16_t size = ARENA - 2*HEAD;
     new->bsize = FALSE;
-    new->free  = FALSE;
     new->size  = size;
+    new->size |= 0x1;
     
     struct head *sentinel = after(new);
 
-    sentinel->bfree = new->free;
     sentinel->bsize = new->size;
-    sentinel->free  = FALSE;
     sentinel->size  = 0;
 
     arena = (struct head*)new;
-    
     return new;
 }
 
-static struct head *flist = NULL;
+
 
 static void detach(struct head *block){
-    if(block->next != ADRS(block)){
+    uint16_t adrs = ADRS(block);
+    if(block->next != adrs){
         if(flist == block) flist = NEXT(block);
-        NEXT(block)->prev = block->prev;
-        PREV(block)->next = block->next;
+        struct head *bef = flist;
+        while(bef->next != adrs) bef = NEXT(bef);
+        bef->next = block->next;
     }else{
         flist = NULL;
     }
-    block->next = 1;
-    block->prev = 1;
 }
 
 static void insert(struct head *block){
     if(flist != NULL){
-        if(NEXT(flist) != flist){
-            block->prev = flist->prev;
-            block->next = ADRS(flist);
-            flist->prev = ADRS(block);
-            PREV(block)->next = flist->prev;
-        }
-        else{
-            block->next = ADRS(flist);
-            block->prev = block->next;
-            flist->next = ADRS(block);
-            flist->prev = flist->next;
-        }
+        uint16_t adrs = ADRS(flist);
+        struct head *last = flist;
+        while(last->next != adrs) last = NEXT(last);
+        last->next = ADRS(block);
+        block->next = adrs;
     }
     else{
         block->next = ADRS(block);
-        block->prev = ADRS(block);
     }
     flist = block;
 }
@@ -203,7 +212,7 @@ static struct head *find(int size){
 
     
     //FIRST-FIT APPROACH
-    while(size > current->size){
+    while(size > (current->size & 0xFFFE )){
         if(current->next == ADRS(flist)) return NULL;
         current = NEXT(current);
     }
@@ -242,41 +251,36 @@ static struct head *find(int size){
     }
     */
     detach(current);
-    if(current->size >= size + (HEAD + ALIGN)){
+    if((current->size & 0xFFFE ) >= size + (HEAD + ALIGN)){
         insert(split(current, size));
     }else{
-        current->free = FALSE;
-        after(current)->bfree = FALSE;
+        current->size &= 0xFFFE;
+        after(current)->bsize &= 0xFFFE;
     }
     return current;
 }
 
 static struct head *merge(struct head *block){
     struct head *aft = after(block);
-    if(block->bfree == TRUE){
+    if(block->bsize & 0x1){
         struct head *bef = before(block);
         detach(bef);
-        int nsize = block->size + bef->size + HEAD;
-        bef->size = nsize;
+        int nsize = (block->size & 0xFFFE ) + (bef->size & 0xFFFE ) + HEAD;
+        bef->size = (bef->size & 0x1) | nsize;
         block = bef;
     }
-
-    if(aft->free == TRUE){  
+    if(aft->size & 0x1){  
         detach(aft);
-        int nsize = block->size + aft->size + HEAD;
-        struct head *aftaft = after(aft);
-        aftaft->bfree = FALSE;
-        aftaft->bsize = nsize;
-        aft->free = FALSE;
-        block->size = nsize;
+        int nsize = (block->size & 0xFFFE ) + (aft->size & 0xFFFE ) + HEAD;
+        block->size = (block->size & 0x1) | nsize;
     }
-    block->free = TRUE;
-    after(block)->bfree = TRUE;
-    after(block)->bsize = block->size;
+    aft = after(block);
+    aft->bsize = block->size;
+    block->size |= 0x1;
     return block;
 }
 
-void *dalloc2(size_t request){    
+void *dalloc2(size_t request){
     if(request <= 0){
         return NULL;
     }
@@ -299,41 +303,3 @@ void dfree2(void *memory){
     return;
 }
 
-void sanity2(){
-    if(flist == NULL) return;
-    struct head *current = flist;
-    int n = 0;
-    while(1){
-        printf("Block %d info:\n\tadrs: %p\n\tbfre: %d\n\tbsiz: %d\n\tfree: %d\n\tsize: %d\n\tnext: %p\n\tprev: %p\n\n"
-        ,++n,current,current->bfree,current->bsize,current->free,current->size,NEXT(current),PREV(current));
-
-        if(current->free == FALSE){
-            printf("Occupied heap-space in freelist at %p\n",current);
-            return;
-        }
-        if(current->size%ALIGN != 0){ 
-            printf("Size of heap-block is unaligned at %p\n",current);
-            return;
-        }
-        if(current->size == 0){ 
-            printf("Size of heap-block is zero at %p\n",current);
-            return;
-        }
-        if(current->next != 1 && PREV(NEXT(current)) != current){ 
-            printf("Block %d info:\n\tadrs: %p\n\tbfre: %d\n\tbsiz: %d\n\tfree: %d\n\tsize: %d\n\tnext: %p\n\tprev: %p\n\n"
-            ,n+1,NEXT(current),NEXT(current)->bfree,NEXT(current)->bsize,NEXT(current)->free,NEXT(current)->size,NEXT(NEXT(current)),PREV(NEXT(current)));
-            printf("Prev-pointer of heap-block %d at %p is faulty\n",n+1,NEXT(current));
-            printf("\tPrev pointer: %p\n\tShould be: %p\n",PREV(NEXT(current)),current);
-            return;
-        }
-        if(current->bfree){
-            printf("Block %d before is free but not merged\n",n);
-            return;
-        }
-        //if(n >= 10) break;
-        if(current->next != ADRS(flist)) current = NEXT(current);
-        else break;
-    };
-    printf("Sanitycheck completed\n");
-    return;
-}

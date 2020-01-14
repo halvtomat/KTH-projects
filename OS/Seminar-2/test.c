@@ -7,9 +7,9 @@
 #include "dlmall.h"
 #include "rand.h"
 
-#define ROUNDS 100
-#define LOOP 100000
-#define BUFFER 500
+#define ROUNDS 5
+#define LOOP 25
+#define BUFFER 6
 
 int main(int argc, char const *argv[]){
     mallopt(M_TOP_PAD,64*1024);
@@ -44,6 +44,7 @@ int main(int argc, char const *argv[]){
             }
             buffer[index] = memory;
             *memory = 123;
+            sanity2();
         }
         
         current = sbrk(0);
