@@ -3,13 +3,13 @@
 #include <unistd.h>
 #include <malloc.h>
 #include <time.h>
-#include "dlmall_improved.h"
+#include "dlmall_2.0.h"
 #include "dlmall.h"
 #include "rand.h"
 
-#define ROUNDS 5
-#define LOOP 25
-#define BUFFER 6
+#define ROUNDS 100
+#define LOOP 100000
+#define BUFFER 50
 
 int main(int argc, char const *argv[]){
     mallopt(M_TOP_PAD,64*1024);
@@ -33,7 +33,7 @@ int main(int argc, char const *argv[]){
             if(buffer[index] != NULL){
                 dfree2(buffer[index]);
             }
-            size_t size = (size_t)request();        
+            size_t size = 256;        
             int *memory;
             memory = dalloc2(size);
 
@@ -44,7 +44,7 @@ int main(int argc, char const *argv[]){
             }
             buffer[index] = memory;
             *memory = 123;
-            sanity2();
+            //sanity2();
         }
         
         current = sbrk(0);
