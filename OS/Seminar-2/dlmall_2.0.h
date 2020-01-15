@@ -1,4 +1,4 @@
-/* Header file for dlmall_improved.c */
+/* Header file for dlmall_2.0.c */
 #include <stdlib.h>
 
 void *dalloc2(size_t request);

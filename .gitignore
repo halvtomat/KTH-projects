@@ -9,5 +9,8 @@
 *.exe
 *.o
 *.DS_Store
+*.log
+*.aux
+*.pdf
 
 .vscode/
