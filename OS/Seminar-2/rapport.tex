@@ -12,6 +12,11 @@
 \newpage
 \pagenumbering{arabic}
 
+\paragraph{Abstract}
+Improvement focus was on making overhead as small as possible. Some performance-costly measures were taken. 
+When managing a number of random-sized memory requests, performance is between 1-11\% of that of built in malloc.
+When instead managing fixed-size requests performance is between 20-25\% better than that of built in malloc.
+
 \section{Introduction}
 
 \paragraph{}
@@ -80,10 +85,61 @@ to 8, this means that the 3 least significant bits of those variables are unused
 
 This is my personal favorite of the improvements since it was really easy to implement, I just made the manager mask the bits of "Size"
 and "Bsize" to get either the size or the free-flags. Another great thing about this is that (to my knowledge) there are no performance
-tradeofs 
+tradeofs.
 
 \section{Results}
 
-this is the results
+\paragraph{}
+Results were mixed, as expected. Mainly two benchmarks were used, both very similar and heavily influated by Assignment 5 from the operating systems course.
+Both benchmarks ran 100 rounds of 10000 memory requests, with a size 50-500 buffer that , with the help of a random number generator, frees up some of the 
+requested memory everytime a request is made. Every round meassures the time the manager takes to finish, than when all rounds are finished prints out the 
+average time it took to complete a round. The benchmark also tests the original "dlmall" we made and the built in malloc function, than compares the results
+of the timers for us to se the relative performance. 
+The difference between the two benchmarks is that one request random-size memory and one request fixed-size memory, there are significant differences 
+between the two.
+
+\begin{verbatim}
+Results from random-size requests:
+
+random size         buffer 500
+Dalloc_2.0 average time used:   0.480701  diff:   100.0%
+Dalloc average time used:       0.013613  diff:   2.8%
+Malloc average time used:       0.007182  diff:   1.5%
+
+random size         buffer 50
+Dalloc_2.0 average time used:   0.061236  diff:   100.0%
+Dalloc average time used:       0.013666  diff:   22.3%
+Malloc average time used:       0.007299  diff:   11.9%
+\end{verbatim}
+
+\begin{verbatim}
+Results from fixed-size requests:
+
+fixed size 16byte   buffer 500
+Dalloc_2.0 average time used:   0.005864  diff:   100.0%
+Dalloc average time used:       0.014031  diff:   239.3%
+Malloc average time used:       0.007322  diff:   124.9%
+
+fixed size 16byte   buffer 50
+Dalloc_2.0 average time used:   0.005825  diff:   100.0%
+Dalloc average time used:       0.013827  diff:   237.4%
+Malloc average time used:       0.007309  diff:   125.5%
+
+fixed size 128byte  buffer 50
+Dalloc_2.0 average time used:   0.005833  diff:   100.0%
+Dalloc average time used:       0.013702  diff:   234.9%
+Malloc average time used:       0.007048  diff:   120.8%
+
+fixed size 64byte   buffer 500
+Dalloc_2.0 average time used:   0.005918  diff:   100.0%
+Dalloc average time used:       0.013708  diff:   231.6%
+Malloc average time used:       0.007217  diff:   122.0%
+\end{verbatim}
+
+\paragraph{}
+As we can see the performance is less than satisfactory in a random-size memory request environment, and as predicted a long free-list is 
+badly handled by the improved memory manager. The reduced buffer size in the second test improved performance x10 but was still almost
+10x slower than built in malloc and even 5x slower than the original "dlmall". The fixed-size benchmarks show completely different results.
+When the size was fixed it seems as the other variables didn't matter anymore, very similar results across all the fixed-size benchmarks.
 
 \end{document}

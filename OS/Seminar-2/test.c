@@ -9,7 +9,7 @@
 
 #define ROUNDS 100
 #define LOOP 100000
-#define BUFFER 50
+#define BUFFER 500
 
 int main(int argc, char const *argv[]){
     mallopt(M_TOP_PAD,64*1024);
@@ -24,8 +24,7 @@ int main(int argc, char const *argv[]){
     double average[3];
     double difference;
 
-    //printf("The initial top of the heap is %p.\n", init);
-//------------------------------------- DALLOC_IMPROVED TEST ---------------------------------
+//------------------------------------- DALLOC_2.0 TEST ---------------------------------
     for(int i = 0; i < ROUNDS; i++){
         start = clock();
         for(int j = 0; j < LOOP; j++){
@@ -33,7 +32,7 @@ int main(int argc, char const *argv[]){
             if(buffer[index] != NULL){
                 dfree2(buffer[index]);
             }
-            size_t size = 256;        
+            size_t size = 64;        
             int *memory;
             memory = dalloc2(size);
 
@@ -44,24 +43,18 @@ int main(int argc, char const *argv[]){
             }
             buffer[index] = memory;
             *memory = 123;
-            //sanity2();
         }
         
         current = sbrk(0);
         int allocated = (int)((current - init) / 1024);
         
-        //printf("%d\n", i);
-        //printf("The current top of the heap is %p.\n", current);
-        //printf("    increased by %d Kbyte\n", allocated);
-        
         end = clock();
         time_used = ((double)(end - start)/CLOCKS_PER_SEC);
         average[0] = average[0] + time_used;
-        //sanity2();
     }
     average[0] = average[0] / ROUNDS;
     difference = (average[0] / average[0])*100;
-    printf("Dalloc_improved average time used:  %f  diff:   %.1f%%\n",average[0],difference);
+    printf("Dalloc_2.0 average time used:   %f  diff:   %.1f%%\n",average[0],difference);
 
     for(int i = 0; i < BUFFER; i++){
         buffer[i] = NULL;
@@ -86,7 +79,7 @@ int main(int argc, char const *argv[]){
     }
     average[1] = average[1] / ROUNDS;
     difference = (average[1] / average[0])*100;
-    printf("Dalloc average time used:           %f  diff:   %.1f%%\n",average[1],difference);
+    printf("Dalloc average time used:       %f  diff:   %.1f%%\n",average[1],difference);
 
     for(int i = 0; i < BUFFER; i++){
         buffer[i] = NULL;
@@ -111,6 +104,6 @@ int main(int argc, char const *argv[]){
     }
     average[2] = average[2] / ROUNDS;
     difference = (average[2] / average[0])*100;
-    printf("Malloc average time used:           %f  diff:   %.1f%%\n",average[2],difference);
+    printf("Malloc average time used:       %f  diff:   %.1f%%\n",average[2],difference);
     return 0;
 }

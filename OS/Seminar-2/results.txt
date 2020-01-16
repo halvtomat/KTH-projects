@@ -1,0 +1,29 @@
+random size         buffer 500
+Dalloc_2.0 average time used:   0.480701  diff:   100.0%
+Dalloc average time used:       0.013613  diff:   2.8%
+Malloc average time used:       0.007182  diff:   1.5%
+
+random size         buffer 50
+Dalloc_2.0 average time used:   0.061236  diff:   100.0%
+Dalloc average time used:       0.013666  diff:   22.3%
+Malloc average time used:       0.007299  diff:   11.9%
+
+fixed size 16byte   buffer 500
+Dalloc_2.0 average time used:   0.005864  diff:   100.0%
+Dalloc average time used:       0.014031  diff:   239.3%
+Malloc average time used:       0.007322  diff:   124.9%
+
+fixed size 16byte   buffer 50
+Dalloc_2.0 average time used:   0.005825  diff:   100.0%
+Dalloc average time used:       0.013827  diff:   237.4%
+Malloc average time used:       0.007309  diff:   125.5%
+
+fixed size 128byte  buffer 50
+Dalloc_2.0 average time used:   0.005833  diff:   100.0%
+Dalloc average time used:       0.013702  diff:   234.9%
+Malloc average time used:       0.007048  diff:   120.8%
+
+fixed size 64byte   buffer 500
+Dalloc_2.0 average time used:   0.005918  diff:   100.0%
+Dalloc average time used:       0.013708  diff:   231.6%
+Malloc average time used:       0.007217  diff:   122.0%
