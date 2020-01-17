@@ -20,6 +20,17 @@ void init(){
     getcontext(&main_cntx);
 }
 
+void green_cond_init(green_cond_t *cond){
+    cond->queue = NULL;
+}
+
+void green_cond_wait(green_cond_t *cond){
+
+}
+void green_cond_signal(green_cond_t *cond){
+    
+}
+
 static void enqueue(green_t *thread){
     green_t *current = running;
     while(current->next != NULL) current = current->next;
