@@ -10,6 +10,14 @@ typedef struct green_t {
     int zombie;    
 } green_t;
 
+typedef struct green_cond_t{
+    green_t *queue;
+} green_cond_t;
+
+typedef struct green_mutex_t{
+    
+} green_mutex_t;
+
 int green_create(green_t *thread, void *(*fun)(void*), void *arg);
 int green_yield();
 int green_join(green_t *thread, void** val);
