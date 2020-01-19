@@ -1,9 +1,12 @@
 #include <stdio.h>
+#include <unistd.h>
 #include "green.h"
+
+#define LOOP 10
 
 void *test(void *arg){
     int i = *(int*)arg;
-    int loop = 4;
+    int loop = LOOP;
     while(loop > 0){
         printf("thread %d: %d\n", i, loop);
         loop--;
@@ -16,7 +19,7 @@ green_cond_t cond;
 
 void *cond_test(void *arg){
     int id = *(int*)arg;
-    int loop = 4;
+    int loop = LOOP;
     while(loop > 0){
         if(flag == id){
             printf("thread %d: %d\n", id, loop);
@@ -27,7 +30,14 @@ void *cond_test(void *arg){
             green_cond_wait(&cond);
         }
     }
+}
 
+void *interrupt_test(void *arg){
+    int id = *(int*)arg; 
+    int loop = LOOP;
+    while(loop > 0){
+        
+    }
 }
 
 int main(){
