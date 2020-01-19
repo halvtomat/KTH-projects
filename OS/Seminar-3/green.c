@@ -20,10 +20,20 @@ void init(){
     getcontext(&main_cntx);
 }
 
-static void enqueue(green_t *thread){
+static void enqueue_ready(green_t *thread){
     green_t *current = running;
     while(current->next != NULL) current = current->next;
     current->next = thread;
+    thread->next = NULL;
+}
+static void enqueue_cond(green_cond_t *cond){
+    green_t *thread = running;
+    if(cond->queue == NULL) cond->queue = thread;
+    else{
+        green_t *current = cond->queue;
+        while(current->next != NULL) current = current->next;
+        current->next = thread;
+    }
     thread->next = NULL;
 }
 
@@ -32,7 +42,7 @@ void green_thread(){
 
     void *result = (*this->fun)(this->arg);
 
-    if(this->join != NULL) enqueue(this->join);
+    if(this->join != NULL) enqueue_ready(this->join);
 
     free(this->context->uc_stack.ss_sp);
     free(this->context);
@@ -67,12 +77,10 @@ int green_create(green_t *new, void *(*fun)(void*), void *arg){
     new->retval = NULL;
     new->zombie = FALSE;
 
-    enqueue(new);
+    enqueue_ready(new);
 
     return 0;
 }
-
-
 
 int green_yield(){
     green_t * susp = running;
@@ -81,7 +89,7 @@ int green_yield(){
 
     running = next;
     susp->next = NULL;
-    enqueue(susp);
+    enqueue_ready(susp);
     swapcontext(susp->context, next->context);
     return 0;
 }
@@ -100,9 +108,22 @@ int green_join(green_t *thread, void **res){
     res = thread->retval;
 
     free(thread->context->uc_stack.ss_sp);
-    free(thread->context);
+    //free(thread->context);
 
     return 0;
 }
 
+static void green_cond_wait(green_cond_t *cond){
+    green_t *susp = running;
+    green_t *next = running->next;
+    enqueue_cond(cond);
 
+    running = next;
+    swapcontext(susp->context, next->context);
+}
+
+static void green_cond_signal(green_cond_t *cond){
+    if(cond->queue == NULL) return;
+    enqueue_ready(cond->queue);
+    cond->queue = cond->queue->next;
+}
