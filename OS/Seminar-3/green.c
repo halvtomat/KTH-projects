@@ -2,27 +2,23 @@
 #include <stdio.h>
 #include <ucontext.h>
 #include <assert.h>
+#include <signal.h>
+#include <sys/time.h>
 #include "green.h"
 
 #define FALSE 0
 #define TRUE 1
-
 #define STACK_SIZE 4096
+#define PERIOD 1
 
 static ucontext_t main_cntx = {0};
 static green_t main_green = {&main_cntx, NULL, NULL, NULL, NULL, NULL, FALSE};
 
 static green_t *running = &main_green;
 
-static void inti() __attribute__((constructor));
+static sigset_t block;
 
-void init(){
-    getcontext(&main_cntx);
-}
-
-void green_cond_init(green_cond_t *cond){
-    cond->queue = NULL;
-}
+static void init() __attribute__((constructor));
 
 static void enqueue_ready(green_t *thread){
     green_t *current = running;
@@ -30,6 +26,7 @@ static void enqueue_ready(green_t *thread){
     current->next = thread;
     thread->next = NULL;
 }
+
 static void enqueue_cond(green_cond_t *cond){
     green_t *thread = running;
     if(cond->queue == NULL) cond->queue = thread;
@@ -39,6 +36,40 @@ static void enqueue_cond(green_cond_t *cond){
         current->next = thread;
     }
     thread->next = NULL;
+}
+
+void timer_handler(int sig){
+    green_t *susp = running;
+    green_t *next = susp->next;
+
+    enqueue_ready(susp);
+
+    running = next;
+    swapcontext(susp->context, next->context);
+
+}
+
+void init(){
+    getcontext(&main_cntx);
+    sigemptyset(&block);
+    sigaddset(&block, SIGVTALRM);
+
+    struct sigaction act = {0};
+    struct timeval interval;
+    struct itimerval period;
+
+    act.sa_handler = timer_handler;
+    assert(sigaction(SIGVTALRM, &act, NULL) == 0);
+
+    interval.tv_sec = 0;
+    interval.tv_usec = PERIOD;
+    period.it_interval = interval;
+    period.it_value = interval;
+    setitimer(ITIMER_VIRTUAL, &period, NULL);
+}
+
+void green_cond_init(green_cond_t *cond){
+    cond->queue = NULL;
 }
 
 void green_thread(){
@@ -111,13 +142,13 @@ int green_join(green_t *thread, void **res){
     }
     res = thread->retval;
 
-    free(thread->context->uc_stack.ss_sp);
+    //free(thread->context->uc_stack.ss_sp);
     //free(thread->context);
 
     return 0;
 }
 
-static void green_cond_wait(green_cond_t *cond){
+void green_cond_wait(green_cond_t *cond){
     green_t *susp = running;
     green_t *next = running->next;
     enqueue_cond(cond);
@@ -126,7 +157,7 @@ static void green_cond_wait(green_cond_t *cond){
     swapcontext(susp->context, next->context);
 }
 
-static void green_cond_signal(green_cond_t *cond){
+void green_cond_signal(green_cond_t *cond){
     if(cond->queue == NULL) return;
     enqueue_ready(cond->queue);
     cond->queue = cond->queue->next;
