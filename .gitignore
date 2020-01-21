@@ -12,5 +12,7 @@
 *.log
 *.aux
 *.pdf
+*.data
+*.png
 
 .vscode/

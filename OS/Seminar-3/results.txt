@@ -1,0 +1,8 @@
+LOOPS: 100
+Green average time: 0.000986s
+LOOPS: 1000
+Green average time: 0.007100s
+LOOPS: 10000
+Green average time: 0.030864s
+LOOPS: 100000
+Green average time: 0.038743s

@@ -1,4 +1,5 @@
 \documentclass[11pt]{article}
+\usepackage{graphicx}
 
 \title{Green}
 \date{2020-01-20}
@@ -13,7 +14,9 @@
 \pagenumbering{arabic}
 
 \paragraph{Abstract}
-
+This report is about the implementation of a "green threads library". The implementation is easy when for 2 threads, more threads created several
+segmentation faults. Mo threads mo problems. The benchmarking was done on a producer/consumer problem and the results show that the average time taken
+for the benchmark to complete was linear when $1<LOOP<10000$ and almost constant when $LOOP>10000$. 
 
 \section{Introduction}
 
@@ -26,127 +29,58 @@ the implementation of a green threads library.
 \section{Background}
 
 \paragraph{}
-To create our own green threads library, we can use the POSIX threads (pthreads) as a goal. The pthreasds library is built in to all POSIX operating systems,
-and contains all neccesary APIs to build a concurrent, multithreaded program. We need three datastructures and a number of functions to implement the
-pthreads API in our own green threads library. 
+To create our own green threads library, we can look at the POSIX threads (pthreads) and use their functionality as the goal.
+The pthreads library is built in to all POSIX operating systems,and contains all neccesary APIs to build a concurrent, 
+multithreaded program. We need three datastructures, green\textunderscore t, green\textunderscore cond\textunderscore t and
+green\textunderscore mutex\textunderscore t, and a number of functions to implement the pthreads API in our own green threads library.
+I was given a skeleton of most functions but had to implement the trickier parts myself.
+
+\section{Implementation}
 
 \paragraph{}
-Green\textunderscore t is the first and most important datastructure nedded. It contains the seven following variables:
+In this section I will cover the parts of the library that were for me to implement. \\ 
+This is a list of functions I had to implement:
 
 \begin{itemize}
-\item context
-\item fun
-\item arg
-\item next
-\item join
-\item retval
-\item zombie
+    \setlength\itemsep{0.1em}
+    \item green\textunderscore thread
+    \item fun
+    \item arg
+    \item next
+    \item join
+    \item retval
+    \item zombie
 \end{itemize}
 
 \paragraph{}
-The first variable, context, is where we keep the stack of the thread, the saved registers and the program counter. \\
-The void pointer fun is a pointer 
-to the start function of the thread, this is where the thread will start to execute when the processor decides to run it. Every process has a main thread,
-this is the only thread in all singlethreaded programs, the fun pointer of the main thread is the main method and thats why all programs start execution
-there. \\
-The next void pointer , arg, is a pointer to potential arguments for the function, this is trivial and needs no more explaining. \\
-Next is a pointer to another Green\textunderscore t and is what we use to create different queues, specifically the queue of threads that are ready 
-to run, the "ready-queue" and two more queues related to conditional variables and mutex locks. \\
-Join is also a Green\textunderscore t pointer but is not used as a linked list but a pointer to another thread who is waiting for the current thread
-to finish before continuing executing, this might be because it needs the results from something the current thread is doing or just because 
-it wants to execute after the current thread. \\
-Retval is another void pointer but this one is pointing to the return value of the thread, this is what a joining thread might want. \\
-Zombie is a flag that can be either 1 or 0, if a thread is still executing it is never a zombie, the zombie state is when the thread has finished
-executing but the potential joinging thread has yet to get the retval from it, therefore the zombie state is a dead thread just 
-containing the return value of its execution.
+
 
 \section{Method}
 
-I focused my improvements on lowering overhead, I did this using 3 different improvement methods.
+\paragraph{}
+The benchmarking was done with the consumer/producer problem. A variable called LOOP was used to controll how many times a thread accessed and 
+changed the buffer between 1 and 0. Another variable ROUNDS was used to set how many times the benchmark would run, during my benchmarking 
+ROUNDS was constantly set to 1000. Every time a round is complete, the time it took for that round is saved and when all rounds are finished
+the average time it took to complete a round is calculated.
 
 \paragraph{}
-The first improvement I made on lowering overhead was removing the "Prev"-pointer, this would lower overhead by 8 bytes therefore making it a big
-first improvement. The tradeof of this is that the Free-list is no longer a double linked list but a single linked list, this has performance
-drawbacks on "detach" and "insert" operations on the list. When detaching, the manager now have to change just one pointer, this pointer is the 
-"Next"-pointer of the previous item on the free-list, this is problematic because the manager has no easy way of finding the previous item like
-it did before. The manager now has to go through the whole list to find the item and this can become performance-costly when the list is long.
-
-\paragraph{}
-The second improvement I made was reducing the "Next"-pointer from 8 to 4 bytes. I achieved this by removing the 4 most significant bytes
-of the pointer, making it a 32bit int instead. This is possible because I know that this heap will never grow beyond a 32bit address-space
-and therefore will always have teh same 4 most significant bytes. The implementation of this is quite simple, two new functions are 
-introduced, ADRS and NEXT. ADRS returns a unsigned 32bit integer, this integer is calculated using by subtracting the address to the arena
-(the start of the heap-space) from a block. This will be the 32bit (4 byte) address of the block and is what will be used in another blocks
-"Next"-pointer. The NEXT function returns a pointer to a head structure, similarly this pointer address is calculated by taken the 
-unsigned 32bit int from ADRS and adding the address to the arena. 
-
-This second improvement can also have significant performance tradeofs, especially in combination with the first improvement. Now each time
-the manager want to traverse the free-list, it needs to convert every "pointer"(32bit unsigned int) to the real address with NEXT function.
-This isn't a big problem when the list is short.
-
-\paragraph{}
-The third and final improvement is the removal of "Free" and "Bfree". The information those two variables conatined is important for the
-functionality of the manager, but only 1 bit in each of the 16bit variables is used. I realized that both "Size" and "Bsize" are aligned 
-to 8, this means that the 3 least significant bits of those variables are unused. After these realizations the LSB of "Size" is the 
-"Free"-flag and the LSB of "Bsize" is the "Bfree"-flag, this reduced the overhead a further 4 bytes.
-
-This is my personal favorite of the improvements since it was really easy to implement, I just made the manager mask the bits of "Size"
-and "Bsize" to get either the size or the free-flags. Another great thing about this is that (to my knowledge) there are no performance
-tradeofs.
+The benchmark was run 10 times, each time making LOOP 10x bigger, this led to some intresting results.
 
 \section{Results}
 
-\paragraph{}
-Results were mixed, as expected. Mainly two benchmarks were used, both very similar and heavily influated by Assignment 5 from the operating systems course.
-Both benchmarks ran 100 rounds of 10000 memory requests, with a size 50-500 buffer that , with the help of a random number generator, frees up some of the 
-requested memory everytime a request is made. Every round meassures the time the manager takes to finish, than when all rounds are finished prints out the 
-average time it took to complete a round. The benchmark also tests the original "dlmall" we made and the built in malloc function, than compares the results
-of the timers for us to se the relative performance. 
-The difference between the two benchmarks is that one request random-size memory and one request fixed-size memory, there are significant differences 
-between the two.
-
-\begin{verbatim}
-Results from random-size requests:
-
-random size         buffer 500
-Dalloc_2.0 average time used:   0.480701  diff:   100.0%
-Dalloc average time used:       0.013613  diff:   2.8%
-Malloc average time used:       0.007182  diff:   1.5%
-
-random size         buffer 50
-Dalloc_2.0 average time used:   0.061236  diff:   100.0%
-Dalloc average time used:       0.013666  diff:   22.3%
-Malloc average time used:       0.007299  diff:   11.9%
-\end{verbatim}
-
-\begin{verbatim}
-Results from fixed-size requests:
-
-fixed size 16byte   buffer 500
-Dalloc_2.0 average time used:   0.005864  diff:   100.0%
-Dalloc average time used:       0.014031  diff:   239.3%
-Malloc average time used:       0.007322  diff:   124.9%
-
-fixed size 16byte   buffer 50
-Dalloc_2.0 average time used:   0.005825  diff:   100.0%
-Dalloc average time used:       0.013827  diff:   237.4%
-Malloc average time used:       0.007309  diff:   125.5%
-
-fixed size 128byte  buffer 50
-Dalloc_2.0 average time used:   0.005833  diff:   100.0%
-Dalloc average time used:       0.013702  diff:   234.9%
-Malloc average time used:       0.007048  diff:   120.8%
-
-fixed size 64byte   buffer 500
-Dalloc_2.0 average time used:   0.005918  diff:   100.0%
-Dalloc average time used:       0.013708  diff:   231.6%
-Malloc average time used:       0.007217  diff:   122.0%
-\end{verbatim}
+\includegraphics[scale=0.6]{results} \\
 
 \paragraph{}
-As we can see the performance is less than satisfactory in a random-size memory request environment, and as predicted a long free-list is 
-badly handled by the improved memory manager. The reduced buffer size in the second test improved performance x10 but was still almost
-10x slower than built in malloc and even 5x slower than the original "dlmall". The fixed-size benchmarks show completely different results.
-When the size was fixed it seems as the other variables didn't matter anymore, very similar results across all the fixed-size benchmarks.
+In this graph we can see that the average time taken increases linearly in the interval $1<LOOP<10000$ and is almost constant when $LOOP>10000$. \\
+This is very odd in my opinion and I suspect some kind of faulty code on my part, the teacher will have to clarify.
+
+\section{Discussion}
+
+\paragraph{}
+A threads library really isn't rocket science but it took some time to implement. I would trust this implementation somewhat as long as only two threads
+are used. This is unfortunatly a big miss, I think that if I redid the implementation I would have made all the tests run with 4 or more threads from 
+the start. When I was already done with the whole implementation and was about to benchmark I tried increasing the thread count and it works sometimes
+and gets segmentation faults sometimes, I tried to find the problem and it seems to stem from the condition variable queue, but the leads keep changing 
+every run. This was a really fun project and Im for sure going to come back and do this right when I have the time. Overall satisfied with the results.
 
 \end{document}
