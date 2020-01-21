@@ -48,14 +48,7 @@ static green_t *next_running(){
 }
 
 void timer_handler(int sig){
-    sigprocmask(SIG_BLOCK, &block, NULL);
-    green_t *susp = running;
-    enqueue_ready(susp);
-    green_t *next = next_running();
-
-    running = next;
-    swapcontext(susp->context, next->context);
-    sigprocmask(SIG_UNBLOCK, &block, NULL);
+    green_yield();
 }
 
 void init(){
@@ -140,12 +133,12 @@ int green_create(green_t *new, void *(*fun)(void*), void *arg){
 int green_yield(){
     sigprocmask(SIG_BLOCK, &block, NULL);
     green_t * susp = running;
-
-    green_t *next = next_running();
-
-    running = next;
-    enqueue_ready(susp);
-    swapcontext(susp->context, next->context);
+    if(susp->next != NULL){
+        green_t *next = next_running();
+        running = next;
+        enqueue_ready(susp);
+        swapcontext(susp->context, next->context);
+    }
     sigprocmask(SIG_UNBLOCK, &block, NULL);
     return 0;
 }
@@ -172,7 +165,7 @@ int green_mutex_lock(green_mutex_t *mutex){
     sigprocmask(SIG_BLOCK, &block, NULL);
     green_t *susp = running;
     while(mutex->taken){
-        /*
+        
         if(mutex->susp == NULL) mutex->susp = susp;
         else{
             green_t *current = mutex->susp;
@@ -184,9 +177,6 @@ int green_mutex_lock(green_mutex_t *mutex){
         running = next;
         sigprocmask(SIG_UNBLOCK, &block, NULL);
         swapcontext(susp->context, next->context);
-        */
-       printf("A\n");
-       green_yield();
     }
     mutex->taken = TRUE;
     sigprocmask(SIG_UNBLOCK, &block, NULL);
@@ -196,7 +186,7 @@ int green_mutex_lock(green_mutex_t *mutex){
 int green_mutex_unlock(green_mutex_t *mutex){
     sigprocmask(SIG_BLOCK, &block, NULL);
 
-    /*if(mutex->susp != NULL){
+    if(mutex->susp != NULL){
         green_t *susp = mutex->susp;
         if(susp->next == NULL) mutex->susp = NULL;
         else{
@@ -204,21 +194,23 @@ int green_mutex_unlock(green_mutex_t *mutex){
             mutex->susp = next;
         }
         enqueue_ready(susp);
-    }*/
+    }
     mutex->taken = FALSE;
     sigprocmask(SIG_UNBLOCK, &block, NULL);
     return 0;
 }
 
-void green_cond_wait(green_cond_t *cond){
+int green_cond_wait(green_cond_t *cond, green_mutex_t *mutex){
     sigprocmask(SIG_BLOCK, &block, NULL);
     green_t *susp = running;
     green_t *next = next_running();
     enqueue_cond(cond);
-
+    if(mutex != NULL) green_mutex_unlock(mutex);
     running = next;
-    sigprocmask(SIG_UNBLOCK, &block, NULL);
     swapcontext(susp->context, next->context);
+    if(mutex != NULL) green_mutex_lock(mutex);
+    sigprocmask(SIG_UNBLOCK, &block, NULL);
+    return 0;
 }
 
 void green_cond_signal(green_cond_t *cond){
@@ -228,9 +220,3 @@ void green_cond_signal(green_cond_t *cond){
     cond->queue = cond->queue->next;
     sigprocmask(SIG_UNBLOCK, &block, NULL);
 }
-
-
-/*
-TODO:
-Fixa pop från running-kön, just nu fuckar den i timer handler (och antagligen i yield också)
-*/
