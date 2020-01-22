@@ -44,16 +44,42 @@ This is a list of functions I had to implement:
 \begin{itemize}
     \setlength\itemsep{0.1em}
     \item green\textunderscore thread
-    \item fun
-    \item arg
-    \item next
-    \item join
-    \item retval
-    \item zombie
+    \item green\textunderscore join
+    \item green\textunderscore cond\textunderscore wait
+    \item green\textunderscore cond\textunderscore signal
+    \item green\textunderscore mutex\textunderscore lock
+    \item green\textunderscore mutex\textunderscore unlock
 \end{itemize}
 
-\paragraph{}
+\paragraph{green\textunderscore thread}
+is almost trivial, firstly I check if a joining thread exists, if it does, block interrupt signal and send it to "enqueue\textunderscore ready"
+than unblock the signal again. Next step is when the thread has finished execution and should become a zombie but first the stack space and context
+are freed. Now we need to find the next thread to run, I use a new function "next\textunderscore running" wich checks if the running
+thread has another thread waiting in the queue, in that case return the next thread, otherwise return the main thread.
 
+\paragraph{green\textunderscore join}
+isn't that special either, first line I had to implement was to tell "thread" that we want to join, with the code below. 
+\begin{verbatim} thread->join = susp; \end{verbatim}
+After that it was basically just running the "next\textunderscore running" function again and swap context.
+
+\paragraph{green\textunderscore cond\textunderscore wait}
+was the first function that I had to implement all by myself. Ofcourse we begin by blocking the timer interrupt signal, next step is to find the next 
+thread to run with next\textunderscore running. We have to find the next thread to run early becuase after that we add the current thread to the 
+condition queue where the threads next pointer will be cleared (otherwise all threads in the ready queue would also be added), this means that
+we can only access the next thread in the ready queue before we add the thread to the condition queue. The following is acctually a call to 
+green\textunderscore mutex\textunderscore unlock. This will be explained further down. Now we swap context and next thread is running.
+
+\paragraph{green\textunderscore cond\textunderscore signal}
+is a simple function, block timer interrupt as usual and then check if a thread is waiting in the condition queue, if it is, add it to the ready queue
+and update the condition queue. 
+
+\paragraph{green\textunderscore mutex\textunderscore lock}
+This function starts by checking if the mutex is free or taken, if it is free, set it to taken and we are done. If it is already taken, add the current
+thread to the back of the suspended queue, find the next thread to run and swap context.
+
+\paragraph{green\textunderscore mutex\textunderscore unlock}
+is the last function to implement. First step is ofcourse to check if a thread is suspended and waiting to aquire the lock, if it is, it is enqueued
+in the ready queue and the suspended queue is updated. If no other threads are waiting for the lock, unlock it by setting taken to FALSE and return.
 
 \section{Method}
 
@@ -72,7 +98,8 @@ The benchmark was run 10 times, each time making LOOP 10x bigger, this led to so
 
 \paragraph{}
 In this graph we can see that the average time taken increases linearly in the interval $1<LOOP<10000$ and is almost constant when $LOOP>10000$. \\
-This is very odd in my opinion and I suspect some kind of faulty code on my part, the teacher will have to clarify.
+This is very odd in my opinion and I suspect some kind of faulty code on my part, the teacher will have to clarify and help me explain this odd behaviour.
+I also tried running with several more thread but i ran into unforseen problems and randomly got segmentation faults, this was a big dissapointment.
 
 \section{Discussion}
 
