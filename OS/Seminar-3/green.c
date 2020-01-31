@@ -10,7 +10,7 @@
 #define FALSE 0
 #define TRUE 1
 #define STACK_SIZE 4096
-#define PERIOD 1000
+#define PERIOD 100
 
 static ucontext_t main_cntx = {0};
 static green_t main_green = {&main_cntx, NULL, NULL, NULL, NULL, NULL, FALSE};
@@ -148,9 +148,7 @@ int green_join(green_t *thread, void **res){
         sigprocmask(SIG_BLOCK, &block, NULL);
         green_t *susp = running;
         thread->join = susp;
-
         green_t *next = next_running();
-
         running = next;
         susp->next = NULL;
         swapcontext(susp->context, next->context);
@@ -164,8 +162,7 @@ int green_join(green_t *thread, void **res){
 int green_mutex_lock(green_mutex_t *mutex){
     sigprocmask(SIG_BLOCK, &block, NULL);
     green_t *susp = running;
-    while(mutex->taken){
-        
+    if(mutex->taken){
         if(mutex->susp == NULL) mutex->susp = susp;
         else{
             green_t *current = mutex->susp;
@@ -175,7 +172,6 @@ int green_mutex_lock(green_mutex_t *mutex){
         green_t *next = next_running();
         susp->next = NULL;
         running = next;
-        sigprocmask(SIG_UNBLOCK, &block, NULL);
         swapcontext(susp->context, next->context);
     }
     mutex->taken = TRUE;
@@ -195,7 +191,7 @@ int green_mutex_unlock(green_mutex_t *mutex){
         }
         enqueue_ready(susp);
     }
-    mutex->taken = FALSE;
+    else mutex->taken = FALSE;
     sigprocmask(SIG_UNBLOCK, &block, NULL);
     return 0;
 }
@@ -216,7 +212,12 @@ int green_cond_wait(green_cond_t *cond, green_mutex_t *mutex){
 void green_cond_signal(green_cond_t *cond){
     if(cond->queue == NULL) return;
     sigprocmask(SIG_BLOCK, &block, NULL);
-    enqueue_ready(cond->queue);
-    cond->queue = cond->queue->next;
+    green_t *signaled = cond->queue;
+    if(signaled->next != NULL){
+        green_t *next = signaled->next;
+        cond->queue = next;
+    }
+    else cond->queue = NULL;
+    enqueue_ready(signaled);
     sigprocmask(SIG_UNBLOCK, &block, NULL);
 }
