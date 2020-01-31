@@ -1,0 +1,113 @@
+\documentclass[11pt]{article}
+\usepackage{graphicx}
+
+\title{Green}
+\date{2020-01-20}
+\author{Daniel Gustafsson}
+
+\begin{document}
+
+\maketitle
+\pagenumbering{gobble}
+
+\newpage
+\pagenumbering{arabic}
+
+\paragraph{Abstract}
+This report is about the implementation of a "green threads library". The implementation is easy when for 2 threads, more threads created several
+segmentation faults. Mo threads mo problems. The benchmarking was done on a producer/consumer problem and the results show that the average time taken
+for the benchmark to complete was linear when $1<LOOP<10000$ and almost constant when $LOOP>10000$. 
+
+\section{Introduction}
+
+\paragraph{}
+Almost all modern CPUs contain several processors but far from all modern programs utilize more than one processor. This ofcourse is very inefficient 
+use of hardware. The big problem in programming multithreaded programs is concurrency, how can we stop two processors from accessing critical code
+at the same time? What we need is a sort of thread manager that can handle these problems easily. This report is about
+the implementation of a green threads library.
+
+\section{Background}
+
+\paragraph{}
+To create our own green threads library, we can look at the POSIX threads (pthreads) and use their functionality as the goal.
+The pthreads library is built in to all POSIX operating systems,and contains all neccesary APIs to build a concurrent, 
+multithreaded program. We need three datastructures, green\textunderscore t, green\textunderscore cond\textunderscore t and
+green\textunderscore mutex\textunderscore t, and a number of functions to implement the pthreads API in our own green threads library.
+I was given a skeleton of most functions but had to implement the trickier parts myself.
+
+\section{Implementation}
+
+\paragraph{}
+In this section I will cover the parts of the library that were for me to implement. \\ 
+This is a list of functions I had to implement:
+
+\begin{itemize}
+    \setlength\itemsep{0.1em}
+    \item green\textunderscore thread
+    \item green\textunderscore join
+    \item green\textunderscore cond\textunderscore wait
+    \item green\textunderscore cond\textunderscore signal
+    \item green\textunderscore mutex\textunderscore lock
+    \item green\textunderscore mutex\textunderscore unlock
+\end{itemize}
+
+\paragraph{green\textunderscore thread}
+is almost trivial, firstly I check if a joining thread exists, if it does, block interrupt signal and send it to "enqueue\textunderscore ready"
+than unblock the signal again. Next step is when the thread has finished execution and should become a zombie but first the stack space and context
+are freed. Now we need to find the next thread to run, I use a new function "next\textunderscore running" wich checks if the running
+thread has another thread waiting in the queue, in that case return the next thread, otherwise return the main thread.
+
+\paragraph{green\textunderscore join}
+isn't that special either, first line I had to implement was to tell "thread" that we want to join, with the code below. 
+\begin{verbatim} thread->join = susp; \end{verbatim}
+After that it was basically just running the "next\textunderscore running" function again and swap context.
+
+\paragraph{green\textunderscore cond\textunderscore wait}
+was the first function that I had to implement all by myself. Ofcourse we begin by blocking the timer interrupt signal, next step is to find the next 
+thread to run with next\textunderscore running. We have to find the next thread to run early becuase after that we add the current thread to the 
+condition queue where the threads next pointer will be cleared (otherwise all threads in the ready queue would also be added), this means that
+we can only access the next thread in the ready queue before we add the thread to the condition queue. The following is acctually a call to 
+green\textunderscore mutex\textunderscore unlock. This will be explained further down. Now we swap context and next thread is running.
+
+\paragraph{green\textunderscore cond\textunderscore signal}
+is a simple function, block timer interrupt as usual and then check if a thread is waiting in the condition queue, if it is, add it to the ready queue
+and update the condition queue. 
+
+\paragraph{green\textunderscore mutex\textunderscore lock}
+This function starts by checking if the mutex is free or taken, if it is free, set it to taken and we are done. If it is already taken, add the current
+thread to the back of the suspended queue, find the next thread to run and swap context.
+
+\paragraph{green\textunderscore mutex\textunderscore unlock}
+is the last function to implement. First step is ofcourse to check if a thread is suspended and waiting to aquire the lock, if it is, it is enqueued
+in the ready queue and the suspended queue is updated. If no other threads are waiting for the lock, unlock it by setting taken to FALSE and return.
+
+\section{Method}
+
+\paragraph{}
+The benchmarking was done with the consumer/producer problem. A variable called LOOP was used to controll how many times a thread accessed and 
+changed the buffer between 1 and 0. Another variable ROUNDS was used to set how many times the benchmark would run, during my benchmarking 
+ROUNDS was constantly set to 1000. Every time a round is complete, the time it took for that round is saved and when all rounds are finished
+the average time it took to complete a round is calculated.
+
+\paragraph{}
+The benchmark was run 10 times, each time making LOOP 10x bigger, this led to some intresting results.
+
+\section{Results}
+
+\includegraphics[scale=0.6]{results} \\
+
+\paragraph{}
+In this graph we can see that the average time taken increases linearly in the interval $1<LOOP<10000$ and is almost constant when $LOOP>10000$. \\
+This is very odd in my opinion and I suspect some kind of faulty code on my part, the teacher will have to clarify and help me explain this odd behaviour.
+I also tried running with several more thread but i ran into unforseen problems and randomly got segmentation faults, this was a big dissapointment.
+
+\section{Discussion}
+
+\paragraph{}
+A threads library really isn't rocket science but it took some time to implement. I would trust this implementation somewhat as long as only two threads
+are used. This is unfortunatly a big miss, I think that if I redid the implementation I would have made all the tests run with 4 or more threads from 
+the start. When I was already done with the whole implementation and was about to benchmark I tried increasing the thread count and it works sometimes
+and gets segmentation faults sometimes, I tried to find the problem and it seems to stem from the condition variable queue, but the leads keep changing 
+every run. This was a really fun project and Im for sure going to come back and do this right when I have the time. Overall satisfied with the results.
+
+\end{document}
