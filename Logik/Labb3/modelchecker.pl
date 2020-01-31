@@ -66,7 +66,7 @@ check(_,_,S,U,eg(_)) :-             % Base case.
     member(S,U),!.                  % Checks if our current state exists in the list U of already evaluated states.
 check(T,L,S,U,eg(X)) :-             % Checks if there is a path where it's always X.
     check(T,L,S,[],X),              % Checks if X is a label in the current state.
-    check(T,L,S,[S|U],ex(eg(X))).   % Adds our current satte in the list U of already evaluated states and then continue to evalutate on the next state.
+    check(T,L,S,[S|U],ex(eg(X))).   % Adds our current state in the list U of already evaluated states and then continue to evalutate on the next state.
 % AF
 check(T,L,S,U,af(X)) :-             % Checks if we eventually end up at X.
   \+ member(S, U),                  % Checks if we have NOT been in S before. This is to stop an endless cycle to occure.

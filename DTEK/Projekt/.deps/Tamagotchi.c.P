@@ -1,0 +1,2 @@
+Tamagotchi.c.o: Tamagotchi.c
+Tamagotchi.c :
