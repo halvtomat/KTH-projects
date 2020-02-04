@@ -71,16 +71,44 @@ defmodule Test do
 
     #Faster version of exp
     def exp_fast(x, n) do
-        case n do
-            0 ->
+        cond do
+            n == 0 ->
                 1
-            1 ->
+            n == 1 ->
                 x
             rem(n, 2) == 0 ->
-                exp_fast(x, n/2) * exp_fast(x, n/2)
+                exp_fast(x, div(n,2)) * exp_fast(x, div(n,2))
             rem(n, 2) == 1 ->
                 exp_fast(x, n-1) * x
         end
     end
-            
-end
+
+    #return the n'th element of the list l
+    def nth(0, [h | _]) do h end
+    def nth(n, [_ | t]) do nth(n-1, t) end
+
+    #return the number of elements in the list l
+    def len(l) do len(l,0) end
+    def len([_ | t],n) do len(t, n+1) end
+    def len([], n) do n end
+
+    #return the sum of all the elements in the list l
+    def sum([h | t]) do sum(t, h) end
+    def sum([h | t], n) do sum(t, n+h) end
+    def sum([], n) do n end
+
+    #return a list where all elements are duplicated
+    def duplicate([h | t]) do [h , h | duplicate(t)] end
+    def duplicate([]) do [] end
+
+    #add the element x to the list l if it is not in the list
+    def add(x, [x | t]) do [x | t] end
+    def add(x, [h | t]) do [h | add(x,t)] end
+    def add(x, []) do [x] end
+
+    #remove all occurances of x in l
+    def remove(x, [x | t]) do remove(x,t) end
+    def remove(x, [h | t]) do [h | remove(x,t)] end
+    def remove(_, []) do [] end
+
+end 
