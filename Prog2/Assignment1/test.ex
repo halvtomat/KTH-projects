@@ -111,4 +111,28 @@ defmodule Test do
     def remove(x, [h | t]) do [h | remove(x,t)] end
     def remove(_, []) do [] end
 
+    #return a list of unique elements in the list l
+    def unique([h | t]) do 
+        t = remove(h, t)
+        [h | unique(t)]
+    end
+    def unique([]) do [] end
+
+    #return a list containing list of equal elements
+    def pack([h | t]) do
+        r = pack(h, t)
+        t = remove(h, t)
+        [[h | r] | pack(t)]
+    end
+    def pack([]) do [] end
+    def pack(x, [x | t]) do [x | pack(x, t)] end
+    def pack(x, [_ | t]) do pack(x, t) end
+    def pack(_, []) do [] end
+
+    #return a list where the order of elements is reversed
+    def reverse([h | t]) do reverse(t) ++ [h] end
+    def reverse([]) do [] end
+
+    
+
 end 
