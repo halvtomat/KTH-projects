@@ -133,6 +133,11 @@ defmodule Test do
     def reverse([h | t]) do reverse(t) ++ [h] end
     def reverse([]) do [] end
 
+    #reverse_fast (tail recursion)
+    def reverse_fast(l) do reverse_fast(l, []) end
+    def reverse_fast([], r) do r end
+    def reverse_fast([h | t], r) do reverse_fast(t, [h | r]) end
+
     #insertion sort
     def insert(e, []) do [e] end
     def insert(e, [h | t]) do
@@ -194,5 +199,69 @@ defmodule Test do
         else
             qsplit(p, t, [h | l1], l2)
         end
+    end
+
+    #converts decimal to binary
+    def to_binary(0) do [] end
+    def to_binary(n) do to_binary(div(n,2)) ++ [rem(n,2)] end
+
+    #better conversion
+    def to_better(n) do to_better(n, []) end
+    def to_better(0, b) do b end
+    def to_better(n, b) do to_better(div(n,2), [rem(n,2) | b]) end
+
+    #converts back from binary to deciamal
+    def to_integer(x) do to_integer(x, 0) end
+    def to_integer([], n) do n end
+    def to_integer([x | r], n) do to_integer(r, n + product( rem(x,2), exp(2, length(r)))) end
+   
+    #Benchmark for reverse function
+    def bench() do
+    ls = [16, 32, 64, 128, 256, 512]
+    n = 100
+    # bench is a closure: a function with an environment.
+    bench = fn(l) ->
+    seq = Enum.to_list(1..l)
+    tn = time(n, fn -> reverse_fast(seq) end)
+    tr = time(n, fn -> reverse(seq) end)
+    :io.format("length: ~10w nrev: ~8w us rev: ~8w us~n", [l, tn, tr])
+    end
+    # We use the library function Enum.each that will call
+    # bench(l) for each element l in ls
+    Enum.each(ls, bench)
+    end
+
+    # Time the execution time of the a function.
+    def time(n, fun) do
+        start = System.monotonic_time(:milliseconds)
+        loop(n, fun)
+        stop = System.monotonic_time(:milliseconds)
+        stop - start
+    end
+
+    # Apply the function n times.
+    def loop(n, fun) do
+        if n == 0 do
+            :ok
+        else
+            fun.()
+            loop(n - 1, fun)
+        end
+    end
+
+    #Fibonacci number generator (aware of super slow speed, but it looks nice and is simple)
+    def fib(0) do 0 end
+    def fib(1) do 1 end
+    def fib(n) do fib(n-1) + fib(n-2) end 
+
+    #Benchmark for the super slow Fibonacci generator
+    def bench_fib() do
+        ls = [8,10,12,14,16,18,20,22,24,26,28,30,32]
+        n = 10
+        bench = fn(l) ->
+            t = time(n, fn() -> fib(l) end)
+            :io.format("n: ~4w fib(n) calculated in: ~8w us~n", [l, t])
+        end
+        Enum.each(ls, bench)
     end
 end 
