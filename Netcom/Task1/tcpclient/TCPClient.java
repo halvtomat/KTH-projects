@@ -15,22 +15,17 @@ public class TCPClient {
         clientSocket.getOutputStream().write(clientBuffer, 0, clientBuffer.length);
         clientSocket.getOutputStream().write('\n');
 
-        int nextByte;
-        int i = 0;
-        do{
-            nextByte = clientSocket.getInputStream().read();
-
-            if(i == serverBuffer.length){
-                byte[] temp = new byte[serverBuffer.length];
-                temp = serverBuffer;
-                serverBuffer = new byte[temp.length * 2];
+        int lastIndex = 0;
+        while(true){
+            if(clientSocket.getInputStream().read(serverBuffer, lastIndex, serverBuffer.length-lastIndex) == serverBuffer.length-lastIndex){
+                byte[] temp = serverBuffer;
+                serverBuffer = new byte[2* temp.length];
                 System.arraycopy(temp, 0, serverBuffer, 0, temp.length);
+                lastIndex = temp.length;
             }
-            serverBuffer[i] = nextByte;
-            i++;
-        }while(nextByte != -1);
+            else break;
+        }
 
-        
         String serverString = new String(serverBuffer, StandardCharsets.UTF_8);
 
         clientSocket.close();
