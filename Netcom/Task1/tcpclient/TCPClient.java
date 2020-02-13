@@ -4,17 +4,32 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 
 public class TCPClient {
-
-    private static int BUFFERSIZE = 1024;
     
     public static String askServer(String hostname, int port, String ToServer) throws  IOException {
         Socket clientSocket = new Socket(hostname, port);
         byte[] clientBuffer = ToServer.getBytes(StandardCharsets.UTF_8);
-        byte[] serverBuffer = new byte[BUFFERSIZE];
 
         clientSocket.getOutputStream().write(clientBuffer, 0, clientBuffer.length);
         clientSocket.getOutputStream().write('\n');
 
+        String serverString = get_response(clientSocket);
+        clientSocket.close();
+
+        return serverString;
+        
+    }
+
+    public static String askServer(String hostname, int port) throws  IOException {
+        Socket clientSocket = new Socket(hostname, port);
+
+        String serverString = get_response(clientSocket);
+        clientSocket.close();
+
+        return serverString;
+    }
+
+    public static String get_response(Socket clientSocket) throws IOException {
+        byte[] serverBuffer = new byte[1024];
         int lastIndex = 0;
         while(true){
             if(clientSocket.getInputStream().read(serverBuffer, lastIndex, serverBuffer.length-lastIndex) == serverBuffer.length-lastIndex){
@@ -27,20 +42,6 @@ public class TCPClient {
         }
 
         String serverString = new String(serverBuffer, StandardCharsets.UTF_8);
-
-        clientSocket.close();
-        return serverString;
-        
-    }
-
-    public static String askServer(String hostname, int port) throws  IOException {
-        Socket clientSocket = new Socket(hostname, port);
-        byte[] serverBuffer = new byte[BUFFERSIZE];
-
-        clientSocket.getInputStream().read(serverBuffer);
-        String serverString = new String(serverBuffer, StandardCharsets.UTF_8);
-
-        clientSocket.close();
-        return serverString;
+        return serverString.trim();
     }
 }
