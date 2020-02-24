@@ -29,5 +29,4 @@ defmodule Moves do
     } 
     end
     
-
 end
