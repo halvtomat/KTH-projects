@@ -17,15 +17,12 @@ public class HTTPAsk {
             connected.getInputStream().read(client_req);
             String req = new String(client_req, StandardCharsets.UTF_8);
             System.out.print(req);
-            String[] req_split = req.split("\n");
-            System.out.println(req_split[1]);
-            String[] req_split_split = req_split[1].split(":");
-            System.out.println(req_split_split[1]);
-            System.out.println(req_split_split[2]);
-            String req_hostname = req_split_split[1];
-            int req_port = Integer.parseInt(req_split_split[2]);
-            String ServerOutput = TCPClient.askServer(req_hostname, req_port);
-            System.out.println(ServerOutput);
+            String[] req_split = req.split(":");
+            String req_hostname = req_split[1].trim();
+            int req_port = Integer.parseInt(req_split[2].split("\n")[0].trim());
+            String serverOutput = TCPClient.askServer(req_hostname, req_port);
+            System.out.println(serverOutput);
+            connected.getOutputStream().write(serverOutput.getBytes(StandardCharsets.UTF_8));
         }
     }
 }
