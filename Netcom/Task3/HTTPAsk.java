@@ -39,15 +39,26 @@ public class HTTPAsk {
                 }
             }
 
-            if(req_hostname.equals("") | req_port == 0){
+            //Handle HTTP 400 
+            if(req_hostname.equals("") | req_port == 0 | !req_split[0].equals("GET") | !req_split[1].equals("/ask")){
                 byte[] header = "HTTP/1.1 400 BAD REQUEST\r\n\r\n".getBytes(StandardCharsets.UTF_8);
                 connected.getOutputStream().write(header);
                 connected.close();
                 continue;
             }
+
             String serverOutput = "";
-            if(req_string.equals("")) serverOutput = TCPClient.askServer(req_hostname, req_port);
-            else serverOutput = TCPClient.askServer(req_hostname, req_port, req_string);
+            try {
+                if(req_string.equals("")) serverOutput = TCPClient.askServer(req_hostname, req_port);
+                else serverOutput = TCPClient.askServer(req_hostname, req_port, req_string);
+                
+            //Handle HTTP 404
+            } catch (UnknownHostException e) {
+                byte[] header = "HTTP/1.1 404 NOT FOUND\r\n\r\n".getBytes(StandardCharsets.UTF_8);
+                connected.getOutputStream().write(header);
+                connected.close();
+                continue;
+            }
 
             byte[] header = "HTTP/1.1 200 OK\r\n\r\n".getBytes(StandardCharsets.UTF_8);
             connected.getOutputStream().write(header);
