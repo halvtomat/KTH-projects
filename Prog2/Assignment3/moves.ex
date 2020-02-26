@@ -28,5 +28,8 @@ defmodule Moves do
         drop(r, 1)
     } 
     end
+
+    def move([], tr) do tr end
+    def move([h | t], tr) do move(t, single(h, tr)) end
     
 end
