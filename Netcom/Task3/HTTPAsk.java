@@ -38,12 +38,20 @@ public class HTTPAsk {
             }
 
             //Handle HTTP 400 
-            if(req_hostname.equals("") | req_port == 0 | !req_split[0].equals("GET") | !req_split[1].equals("/ask")){
+            try {
+                if(req_hostname.equals("") | req_port == 0 | !req_split[0].equals("GET") | !req_split[1].equals("/ask")){
+                    byte[] header = "HTTP/1.1 400 BAD REQUEST\r\n\r\n".getBytes(StandardCharsets.UTF_8);
+                    connected.getOutputStream().write(header);
+                    connected.close();
+                    continue;
+                }
+            } catch (ArrayIndexOutOfBoundsException e) {
                 byte[] header = "HTTP/1.1 400 BAD REQUEST\r\n\r\n".getBytes(StandardCharsets.UTF_8);
                 connected.getOutputStream().write(header);
                 connected.close();
                 continue;
             }
+
 
             String serverOutput = "";
             try {
