@@ -50,6 +50,9 @@ class Dishes extends Component {
           <li key={dish.id}>{dish.title}</li>
         ));
         break;
+      case "ERROR":
+        dishesList = <b>BIG ERROR</b>;
+        break;
       default:
         dishesList = <b>Failed to load data, please try again</b>;
         break;

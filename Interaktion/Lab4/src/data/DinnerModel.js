@@ -1,8 +1,11 @@
 import ObservableModel from "./ObservableModel";
+import API_KEY from "./apiConfig";
+import ENDPOINT from "./apiConfig";
+import Dishes from "../Dishes/Dishes";
 
-const BASE_URL = "https://spoonacular-recipe-food-nutrition-v1.p.mashape.com";
+const BASE_URL = ENDPOINT;
 const httpOptions = {
-  headers: { "X-Mashape-Key": "YOUR_API_KEY" }
+  headers: { method: "GET", "X-Mashape-Key": API_KEY }
 };
 
 class DinnerModel extends ObservableModel {
@@ -10,6 +13,7 @@ class DinnerModel extends ObservableModel {
     super();
     this._numberOfGuests = 4;
     this.getNumberOfGuests();
+    this.menu = [];
   }
 
   /**
@@ -35,8 +39,41 @@ class DinnerModel extends ObservableModel {
    * Do an API call to the search API endpoint.
    * @returns {Promise<any>}
    */
-  getAllDishes() {
-    const url = `${BASE_URL}/recipes/search`;
+  getAllDishes(type, query) {
+    if(type == null) type = "main course";
+    if(query == null) query = "pizza";
+    const url = `${BASE_URL}/recipes/search?type=${type}&query=${query}`;
+    return fetch(url, httpOptions).then(this.processResponse);
+  }
+
+  getFullMenu() {
+    return this.menu;
+  }
+
+  getAllIngredients() {
+    return this.menu.map(function(dish){
+      return dish.extendedIngredients;
+    }).flat();
+  }
+
+  getTotalMenuPrice() {
+    if(this.menu.length === 0) return 0;
+    let temp = this.menu.reduce((dish1, dish2) => ({pricePerServing: dish1.pricePerServing + dish2.pricePerServing}));
+    return temp.pricePerServing * this.getNumberOfGuests();
+  }
+
+  //Adds the passed dish to the menu.
+  addDishToMenu(dish) {
+    this.menu.push(dish);
+  }
+
+  //Removes dish with specified id from menu
+  removeDishFromMenu(id) {
+    this.menu.splice(this.menu.indexOf(this.getDish(id)),1);
+  }
+
+  getDish(id) {
+    const url = `${BASE_URL}/recipes/${id}/information`;
     return fetch(url, httpOptions).then(this.processResponse);
   }
 
