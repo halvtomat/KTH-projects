@@ -14,9 +14,7 @@ public class HTTPAsk {
             int req_port = 0;
             String req_string = "";
 
-            byte[] client_req = new byte[2048];
-            connected.getInputStream().read(client_req);
-            String req = new String(client_req, StandardCharsets.UTF_8);
+            String req = get_response(connected);
             String[] req_split = req.split("[:?&= ]");
 
             for(int i = 0; i < req_split.length; i++){
@@ -40,12 +38,20 @@ public class HTTPAsk {
             }
 
             //Handle HTTP 400 
-            if(req_hostname.equals("") | req_port == 0 | !req_split[0].equals("GET") | !req_split[1].equals("/ask")){
+            try {
+                if(req_hostname.equals("") | req_port == 0 | !req_split[0].equals("GET") | !req_split[1].equals("/ask")){
+                    byte[] header = "HTTP/1.1 400 BAD REQUEST\r\n\r\n".getBytes(StandardCharsets.UTF_8);
+                    connected.getOutputStream().write(header);
+                    connected.close();
+                    continue;
+                }
+            } catch (ArrayIndexOutOfBoundsException e) {
                 byte[] header = "HTTP/1.1 400 BAD REQUEST\r\n\r\n".getBytes(StandardCharsets.UTF_8);
                 connected.getOutputStream().write(header);
                 connected.close();
                 continue;
             }
+
 
             String serverOutput = "";
             try {
@@ -65,6 +71,22 @@ public class HTTPAsk {
             connected.getOutputStream().write(serverOutput.getBytes(StandardCharsets.UTF_8));
             connected.close();
         }
+    }
+    private static String get_response(Socket clientSocket) throws IOException {
+        byte[] serverBuffer = new byte[1024];
+        int lastIndex = 0;
+        while(true){
+            if(clientSocket.getInputStream().read(serverBuffer, lastIndex, serverBuffer.length-lastIndex) == serverBuffer.length-lastIndex){
+                byte[] temp = serverBuffer;
+                serverBuffer = new byte[2* temp.length];
+                System.arraycopy(temp, 0, serverBuffer, 0, temp.length);
+                lastIndex = temp.length;
+            }
+            else break;
+        }
+
+        String serverString = new String(serverBuffer, StandardCharsets.UTF_8);
+        return serverString.trim();
     }
 }
 
