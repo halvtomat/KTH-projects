@@ -1,0 +1,6 @@
+.Sidebar{
+    grid-column: 1;
+    grid-row: 1/6;
+    border-right: solid black 3px;
+    background: #FFF;
+}
