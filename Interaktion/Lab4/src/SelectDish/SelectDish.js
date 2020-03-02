@@ -1,17 +1,25 @@
 import React, { Component } from "react";
 import Sidebar from "../Sidebar/Sidebar";
 import Dishes from "../Dishes/Dishes";
+import Details from "../Details/Details";
+import Search from "../Search/Search";
 import "./SelectDish.css";
 
 class SelectDish extends Component {
+
+
+  getDetails = (id) => {
+    //path="/dish/"+id;
+    console.log(id);
+  }
+
+
   render() {
     return (
       <div className="SelectDish">
-        <h2>This is the Select Dish screen</h2>
-
-        {/* We pass the model as property to the Sidebar component */}
+        <Search model={this.props.model}  />
         <Sidebar model={this.props.model} />
-        <Dishes />
+        <Dishes getDetails={this.getDetails}/>
       </div>
     );
   }

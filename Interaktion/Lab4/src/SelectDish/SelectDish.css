@@ -1,0 +1,8 @@
+.SelectDish{
+    grid-column: 1/6;
+    grid-row: 2/6;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+}
+

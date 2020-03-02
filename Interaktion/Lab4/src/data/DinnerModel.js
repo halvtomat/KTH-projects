@@ -1,11 +1,9 @@
 import ObservableModel from "./ObservableModel";
-import API_KEY from "./apiConfig";
-import ENDPOINT from "./apiConfig";
-import Dishes from "../Dishes/Dishes";
+import * as ApiConfig from "./apiConfig";
 
-const BASE_URL = ENDPOINT;
+const BASE_URL = ApiConfig.ENDPOINT;
 const httpOptions = {
-  headers: { method: "GET", "X-Mashape-Key": API_KEY }
+  headers: { method: "GET", "X-Mashape-Key": ApiConfig.API_KEY }
 };
 
 class DinnerModel extends ObservableModel {

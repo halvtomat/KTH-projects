@@ -13,6 +13,7 @@ class Dishes extends Component {
       status: "LOADING"
     };
   }
+  
 
   // this methods is called by React lifecycle when the
   // component is actually shown to the user (mounted to DOM)
@@ -37,7 +38,6 @@ class Dishes extends Component {
 
   render() {
     let dishesList = null;
-
     // depending on the state we either generate
     // useful message to the user or show the list
     // of returned dishes
@@ -47,7 +47,14 @@ class Dishes extends Component {
         break;
       case "LOADED":
         dishesList = this.state.dishes.map(dish => (
-          <li key={dish.id}>{dish.title}</li>
+          <img 
+            className="image" 
+            key={dish.id} 
+            alt={dish.name} 
+            src={"https://spoonacular.com/recipeImages/"+dish.id+"-556x370.jpg"} 
+            onClick={() => this.props.getDetails(dish.id)}>
+            {dish.name}
+          </img>
         ));
         break;
       case "ERROR":
@@ -60,7 +67,6 @@ class Dishes extends Component {
 
     return (
       <div className="Dishes">
-        <h3>Dishes</h3>
         <ul>{dishesList}</ul>
       </div>
     );

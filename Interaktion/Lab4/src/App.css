@@ -1,0 +1,33 @@
+*{
+    padding: 0;
+    margin: 0;
+}
+.App-header{
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+}
+.App-title{
+    grid-column: 1/6;
+    grid-row: 1;
+    display: block;
+    background: #CCCCCC;
+    text-align: center;
+    font-size: 5em;
+    padding: 0.1em;
+    border-bottom: black solid 3px;
+}
+.button{
+    background: rgb(228, 158, 30);
+    border: solid gray 1px;
+    border-bottom: solid black 5px;
+    border-right: solid black 5px;
+    transition: all .1s;
+}
+.button:hover{
+    border-top: solid white 5px;
+    border-left: solid white 5px;
+    border-bottom: solid black 1px;
+    border-right: solid black 1px;
+    cursor: pointer;
+}
