@@ -1,27 +1,25 @@
 import React, { Component } from "react";
 import Sidebar from "../Sidebar/Sidebar";
 import Dishes from "../Dishes/Dishes";
+import Details from "../Details/Details";
+import Search from "../Search/Search";
 import "./SelectDish.css";
 
 class SelectDish extends Component {
+
+
+  getDetails = (id) => {
+    //path="/dish/"+id;
+    console.log(id);
+  }
+
+
   render() {
     return (
       <div className="SelectDish">
-        <div className="SearchDish">
-          <h2 id="topText">This is the Select Dish screen</h2>
-          <input type="text" id="keyWords" placeholder="Enter key words"></input>
-          <button type="submit" id="submit" className="button">search</button>
-          <select id="select">
-            <option value="All">All</option>
-            <option value="Main Course">Main Course</option>
-            <option value="Side Dish">Side Dish</option>
-            <option value="Dessert">Dessert</option>
-            <option value="Appetizer">Appetizer</option>
-          </select>
-        </div>
-        {/* We pass the model as property to the Sidebar component */}
+        <Search model={this.props.model}  />
         <Sidebar model={this.props.model} />
-        <Dishes />
+        <Dishes getDetails={this.getDetails}/>
       </div>
     );
   }

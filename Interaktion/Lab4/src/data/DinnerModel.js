@@ -1,6 +1,5 @@
 import ObservableModel from "./ObservableModel";
 import * as ApiConfig from "./apiConfig";
-import Dishes from "../Dishes/Dishes";
 
 const BASE_URL = ApiConfig.ENDPOINT;
 const httpOptions = {

@@ -3,7 +3,6 @@ import React, { Component } from "react";
 // we can import the model instance directly
 import modelInstance from "../data/DinnerModel";
 import "./Dishes.css";
-import Link from "react-router-dom/Link";
 
 class Dishes extends Component {
   constructor(props) {
@@ -39,7 +38,6 @@ class Dishes extends Component {
 
   render() {
     let dishesList = null;
-    let i = 0;
     // depending on the state we either generate
     // useful message to the user or show the list
     // of returned dishes
@@ -49,9 +47,14 @@ class Dishes extends Component {
         break;
       case "LOADED":
         dishesList = this.state.dishes.map(dish => (
-          <Link to="/details" className="DetailsLink">
-          <img className="image" id={"image"+i++} key={dish.id} src={"https://spoonacular.com/recipeImages/"+dish.id+"-556x370.jpg"}>{dish.name}</img>
-          </Link>
+          <img 
+            className="image" 
+            key={dish.id} 
+            alt={dish.name} 
+            src={"https://spoonacular.com/recipeImages/"+dish.id+"-556x370.jpg"} 
+            onClick={() => this.props.getDetails(dish.id)}>
+            {dish.name}
+          </img>
         ));
         break;
       case "ERROR":
@@ -64,7 +67,6 @@ class Dishes extends Component {
 
     return (
       <div className="Dishes">
-        <h3>Dishes</h3>
         <ul>{dishesList}</ul>
       </div>
     );
