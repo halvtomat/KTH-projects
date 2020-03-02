@@ -9,37 +9,45 @@ class SelectDish extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      status: "Search"
+      status: this.props.state,
+      dishId: 0,
+      type: "pizza",
+      query: "All"
     };
   }
-
-  getDetails = (id) => {
-    this.setState = ({
-      status: "Details"
-    });
-    console.log(id);
-  }
+  
   searchDishes = (type, query) => {
-    
+    console.log(type);
+    console.log(query);
+    this.setState({
+      status: "SEARCH",
+      type: type,
+      query: query
+    },() => console.log("confirmed state change"))
   }
 
   render() {
     switch(this.state.status){
-      case "Search":
+      case "SEARCH":
         return (
           <div className="SelectDish">
             <Sidebar model={this.props.model} />
-            <Search  searchDishes={this.searchDishes}/>
-            <Dishes getDetails={this.getDetails}/>
+            <Search searchDishes={this.searchDishes}/>
+            <Dishes getDetails={this.getDetails} type={this.state.type} query={this.state.query}/>
           </div>
         );
-      case "Details":
+      case "DETAILS":
         return (
           <div className="SelectDish">
             <Sidebar model={this.props.model} />
-            <Details  />
+            <Details dishID={this.state.dishId}/>
           </div>
         );
+      default:
+        return ( 
+        <div className="SelectDish">
+          <h1>Something is horribly wrong</h1>
+        </div>);
     }
 
   }

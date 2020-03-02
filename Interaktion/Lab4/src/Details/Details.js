@@ -5,14 +5,7 @@ class Details extends Component {
     constructor(props) {
         super(props);
     }
-
-    componentDidMount() {
-        this.props.model.addObserver(this);
-    }
-    componentWillUnmount() {
-        this.props.model.removeObserver(this);
-    }
-
+    
     render() {
         return (
         <div className="Details">

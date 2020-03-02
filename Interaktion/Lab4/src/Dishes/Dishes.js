@@ -3,6 +3,7 @@ import React, { Component } from "react";
 // we can import the model instance directly
 import modelInstance from "../data/DinnerModel";
 import "./Dishes.css";
+import Link from "react-router-dom/Link";
 
 class Dishes extends Component {
   constructor(props) {
@@ -10,10 +11,18 @@ class Dishes extends Component {
     // We create the state to store the various statuses
     // e.g. API data loading or error
     this.state = {
-      status: "LOADING"
+      status: "LOADING",
+      type: this.props.type,
+      query: this.props.query
     };
   }
-  
+  static getDerivedStateFromProps(props, state){
+    console.log("get derived state");
+    return {
+      type: props.type,
+      query: props.query
+    };
+  }
 
   // this methods is called by React lifecycle when the
   // component is actually shown to the user (mounted to DOM)
@@ -22,7 +31,7 @@ class Dishes extends Component {
     // when data is retrieved we update the state
     // this will cause the component to re-render
     modelInstance
-      .getAllDishes(this.props.type, this.props.query)
+      .getAllDishes(this.state.type, this.state.query)
       .then(dishes => {
         this.setState({
           status: "LOADED",
@@ -35,7 +44,7 @@ class Dishes extends Component {
         });
       });
   }
-
+//
   render() {
     let dishesList = null;
     // depending on the state we either generate
@@ -47,21 +56,18 @@ class Dishes extends Component {
         break;
       case "LOADED":
         dishesList = this.state.dishes.map(dish => (
-          <img 
-            className="image" 
-            key={dish.id} 
-            alt={dish.name} 
-            src={"https://spoonacular.com/recipeImages/"+dish.id+"-556x370.jpg"} 
-            onClick={() => this.props.getDetails(dish.id)}>
-            {dish.name}
-          </img>
+          <Link key={dish.id}  to={"/dish/id"+dish.id} >
+            <img 
+              className="image" 
+              alt={dish.name} 
+              src={"https://spoonacular.com/recipeImages/"+dish.id+"-556x370.jpg"}> 
+              {dish.name}
+            </img>
+          </Link>
         ));
         break;
-      case "ERROR":
-        dishesList = <b>BIG ERROR</b>;
-        break;
       default:
-        dishesList = <b>Failed to load data, please try again</b>;
+        dishesList = <b>BIG ERROR</b>;
         break;
     }
 
