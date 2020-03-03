@@ -19,6 +19,7 @@ class Dishes extends Component {
   static getDerivedStateFromProps(props, state){
     console.log("get derived state");
     return {
+      //status: "LOADING",
       type: props.type,
       query: props.query
     };
@@ -28,6 +29,21 @@ class Dishes extends Component {
   // component is actually shown to the user (mounted to DOM)
   // that's a good place to call the API and get the data
   componentDidMount() {
+    this.getDishes();
+  }
+
+  componentDidUpdate(prevProps){
+    console.log("didUpdate");
+    if(prevProps.type !== this.props.type|| prevProps.query !== this.props.query) () =>{
+      this.setState({
+        status: "LOADING"
+      });
+      this.getDishes();
+    } 
+  }
+
+  getDishes() {
+    console.log("getting");
     // when data is retrieved we update the state
     // this will cause the component to re-render
     modelInstance
@@ -44,7 +60,7 @@ class Dishes extends Component {
         });
       });
   }
-//
+
   render() {
     let dishesList = null;
     // depending on the state we either generate
@@ -56,12 +72,14 @@ class Dishes extends Component {
         break;
       case "LOADED":
         dishesList = this.state.dishes.map(dish => (
-          <Link key={dish.id}  to={"/dish/id"+dish.id} >
+          <Link key={dish.id}  to={"/dish/"+dish.id} onClick={() => this.props.getDetails(dish.id)}>
             <img 
               className="image" 
-              alt={dish.name} 
+              alt={dish.name}
+              onClick={() => this.props.getDetails(dish.id)} 
               src={"https://spoonacular.com/recipeImages/"+dish.id+"-556x370.jpg"}> 
               {dish.name}
+              
             </img>
           </Link>
         ));

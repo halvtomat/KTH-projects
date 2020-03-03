@@ -10,20 +10,24 @@ class SelectDish extends Component {
     super(props);
     this.state = {
       status: this.props.state,
-      dishId: 0,
       type: "pizza",
       query: "All"
     };
   }
   
   searchDishes = (type, query) => {
-    console.log(type);
-    console.log(query);
     this.setState({
       status: "SEARCH",
       type: type,
       query: query
-    },() => console.log("confirmed state change"))
+    });
+  }
+
+  getDetails = (id) => {
+    console.log("getting details");
+    this.setState({
+      dishId: id
+    });
   }
 
   render() {
@@ -31,7 +35,7 @@ class SelectDish extends Component {
       case "SEARCH":
         return (
           <div className="SelectDish">
-            <Sidebar model={this.props.model} />
+            <Sidebar model={this.props.model}/>
             <Search searchDishes={this.searchDishes}/>
             <Dishes getDetails={this.getDetails} type={this.state.type} query={this.state.query}/>
           </div>
@@ -39,8 +43,8 @@ class SelectDish extends Component {
       case "DETAILS":
         return (
           <div className="SelectDish">
-            <Sidebar model={this.props.model} />
-            <Details dishID={this.state.dishId}/>
+            <Sidebar model={this.props.model}/>
+            <Details dishId={this.state.dishId}/>
           </div>
         );
       default:

@@ -9,6 +9,10 @@ class Details extends Component {
     render() {
         return (
         <div className="Details">
+             <img 
+              className="image" 
+              src={"https://spoonacular.com/recipeImages/"+this.props.dishId+"-556x370.jpg"}> 
+            </img>
         </div>
         );
     }

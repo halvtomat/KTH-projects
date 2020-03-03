@@ -27,7 +27,7 @@ class App extends Component {
           />
           <Route
             path="/dish/"
-            render={() => <SelectDish model={modelInstance} state="DETAILS"/>}
+            render={() => <SelectDish model={modelInstance} state="DETAILS" />}
           />
         </header>
       </div>
