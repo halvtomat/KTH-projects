@@ -1,6 +1,13 @@
 .Dishes{
     grid-column: 2/6;
-    grid-row: 2/6;
+    grid-row: 1/6;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+}
+.DishesList{
+    grid-column: 1/5;
+    grid-row: 2/5;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(4, 1fr);
@@ -9,8 +16,33 @@
 .image{
     width: 100%;
 }
-.imgClick{
-    
+.Search{
+    background: rgb(248, 165, 110);
+    grid-column: 1/5;
+    grid-row: 1;
+    display:grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+}
+#topText{
+    grid-column: 1/5;
+    font-size: 1.5em;
+}
+#keyWords{
+    grid-column: 2/4;
+    grid-row: 2;
+}
+#submit{
+    grid-column: 4;
+    grid-row: 2;
+}
+#submit:hover{
+    border-top: solid rgb(248, 165, 110) 5px;
+    border-left: solid rgb(248, 165, 110) 5px;
+}
+#select{
+    grid-column: 6;
+    grid-row: 2;
 }
 ul{
     grid-column: 1/5;
