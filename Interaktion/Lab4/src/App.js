@@ -12,7 +12,7 @@ class App extends Component {
       title: "Dinner Planner"
     };
   }
-
+  
   render() {
     return (
       <div className="App">
@@ -23,11 +23,11 @@ class App extends Component {
           <Route exact path="/" component={Welcome} />
           <Route
             path="/search"
-            render={() => <SelectDish model={modelInstance} state="SEARCH" />}
+            render={() => <SelectDish model={modelInstance} state="SEARCH" getDetails={this.getDetails}/>}
           />
           <Route
             path="/dish/"
-            render={() => <SelectDish model={modelInstance} state="DETAILS" />}
+            render={() => <SelectDish model={modelInstance} state="DETAILS"/>}
           />
         </header>
       </div>

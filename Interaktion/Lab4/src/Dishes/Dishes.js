@@ -11,18 +11,10 @@ class Dishes extends Component {
     // We create the state to store the various statuses
     // e.g. API data loading or error
     this.state = {
-      status: "LOADING",
-      type: this.props.type,
-      query: this.props.query
+      status: "LOADING"
     };
-  }
-  static getDerivedStateFromProps(props, state){
-    console.log("get derived state");
-    return {
-      //status: "LOADING",
-      type: props.type,
-      query: props.query
-    };
+    this.keyword = "pizza";
+    this.query = "All";
   }
 
   // this methods is called by React lifecycle when the
@@ -32,22 +24,22 @@ class Dishes extends Component {
     this.getDishes();
   }
 
-  componentDidUpdate(prevProps){
-    console.log("didUpdate");
-    if(prevProps.type !== this.props.type|| prevProps.query !== this.props.query) () =>{
-      this.setState({
-        status: "LOADING"
-      });
-      this.getDishes();
-    } 
+  setKeyword = (evt) => {
+    this.keyword = evt.target.value;
+  }
+
+  setQuery = (evt) => {
+    this.query = evt.target.value;
   }
 
   getDishes() {
-    console.log("getting");
+    this.setState({
+      status: "LOADING"
+    })
     // when data is retrieved we update the state
     // this will cause the component to re-render
     modelInstance
-      .getAllDishes(this.state.type, this.state.query)
+      .getAllDishes(this.keyword, this.query)
       .then(dishes => {
         this.setState({
           status: "LOADED",
@@ -72,14 +64,12 @@ class Dishes extends Component {
         break;
       case "LOADED":
         dishesList = this.state.dishes.map(dish => (
-          <Link key={dish.id}  to={"/dish/"+dish.id} onClick={() => this.props.getDetails(dish.id)}>
+          <Link key={dish.id}  to={"/dish/"+dish.id}>
             <img 
               className="image" 
               alt={dish.name}
-              onClick={() => this.props.getDetails(dish.id)} 
               src={"https://spoonacular.com/recipeImages/"+dish.id+"-556x370.jpg"}> 
               {dish.name}
-              
             </img>
           </Link>
         ));
@@ -91,7 +81,21 @@ class Dishes extends Component {
 
     return (
       <div className="Dishes">
-        <ul>{dishesList}</ul>
+        <div className="Search">
+          <h2 id="topText">This is the Search screen</h2>
+          <input type="text" id="keyWords" placeholder="Enter key words" onChange={evt => this.setKeyword(evt)}></input>
+          <button type="submit" className="button" id="submit" onClick={() => this.getDishes()}>search</button>
+          <select id="select" onChange={evt => this.setQuery(evt)}>
+            <option value="All">All</option>
+            <option value="Main Course">Main Course</option>
+            <option value="Side Dish">Side Dish</option>
+            <option value="Dessert">Dessert</option>
+            <option value="Appetizer">Appetizer</option>
+          </select>
+        </div>
+        <div className="DishesList">
+          <ul>{dishesList}</ul>
+        </div>
       </div>
     );
   }

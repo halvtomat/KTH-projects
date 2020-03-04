@@ -2,32 +2,14 @@ import React, { Component } from "react";
 import Sidebar from "../Sidebar/Sidebar";
 import Dishes from "../Dishes/Dishes";
 import Details from "../Details/Details";
-import Search from "../Search/Search";
 import "./SelectDish.css";
 
 class SelectDish extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      status: this.props.state,
-      type: "pizza",
-      query: "All"
+      status: this.props.state
     };
-  }
-  
-  searchDishes = (type, query) => {
-    this.setState({
-      status: "SEARCH",
-      type: type,
-      query: query
-    });
-  }
-
-  getDetails = (id) => {
-    console.log("getting details");
-    this.setState({
-      dishId: id
-    });
   }
 
   render() {
@@ -36,15 +18,14 @@ class SelectDish extends Component {
         return (
           <div className="SelectDish">
             <Sidebar model={this.props.model}/>
-            <Search searchDishes={this.searchDishes}/>
-            <Dishes getDetails={this.getDetails} type={this.state.type} query={this.state.query}/>
+            <Dishes />
           </div>
         );
       case "DETAILS":
         return (
           <div className="SelectDish">
             <Sidebar model={this.props.model}/>
-            <Details dishId={this.state.dishId}/>
+            <Details />
           </div>
         );
       default:
