@@ -3,4 +3,15 @@
     grid-row: 1/6;
     border-right: solid black 3px;
     background: #FFF;
+    display: grid;
+    grid-template-rows: 1fr 4fr;
+}
+.Sidebar_top{
+    grid-row: 1;
+    border-bottom: 3px solid black;
+}
+.Sidebar_bottom{
+    grid-row: 2;
+    display: grid;
+    grid-auto-rows: 1fr;
 }

@@ -25,7 +25,7 @@ class SelectDish extends Component {
         return (
           <div className="SelectDish">
             <Sidebar model={this.props.model}/>
-            <Details />
+            <Details model={this.props.model}/>
           </div>
         );
       default:

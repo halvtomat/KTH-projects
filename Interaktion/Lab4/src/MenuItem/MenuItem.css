@@ -1,0 +1,6 @@
+.MenuItem{
+    border:3px solid black;
+    display: grid;
+    grid-template-columns:3fr 1fr;
+    background: grey;
+}

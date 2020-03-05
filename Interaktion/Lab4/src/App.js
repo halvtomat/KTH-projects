@@ -23,7 +23,7 @@ class App extends Component {
           <Route exact path="/" component={Welcome} />
           <Route
             path="/search"
-            render={() => <SelectDish model={modelInstance} state="SEARCH" getDetails={this.getDetails}/>}
+            render={() => <SelectDish model={modelInstance} state="SEARCH"/>}
           />
           <Route
             path="/dish/"
