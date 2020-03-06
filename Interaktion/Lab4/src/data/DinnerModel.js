@@ -68,6 +68,7 @@ class DinnerModel extends ObservableModel {
   //Removes dish with specified id from menu
   removeDishFromMenu(id) {
     this.menu.splice(this.menu.indexOf(this.getDish(id)),1);
+    this.notifyObservers();
   }
 
   getDish(id) {

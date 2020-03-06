@@ -42,10 +42,8 @@ class Sidebar extends Component {
 
   render() {
     let menuitems = this.state.menu.map((dish) => (
-      <MenuItem  dish={dish}/>
+      <MenuItem  dish={dish} model={this.props.model}/>
     ))
-    console.log(this.state.menu);
-    console.log(menuitems);
     return (
       <div className="Sidebar">
         <div className="Sidebar_top">
@@ -60,7 +58,7 @@ class Sidebar extends Component {
           </p>
         </div>
         <div className="Sidebar_bottom">
-          <ul>
+          <ul id="menuItemList">
             {menuitems}
           </ul>
         </div>

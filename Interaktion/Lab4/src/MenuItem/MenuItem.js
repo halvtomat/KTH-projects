@@ -7,11 +7,12 @@ class MenuItem extends Component {
   }
 
   render() {
-      console.log("creating menuitem");
+      console.log(this.props.dish);
     return ( 
         <div className="MenuItem">
             <div className="dishName">{this.props.dish.title}</div>
-            <div className="dishPrice">SEK: {this.props.dish.price}</div>
+            <div className="dishPrice">SEK: {this.props.dish.pricePerServing * this.props.model.getNumberOfGuests()}</div>
+            <button className="removeItem" onClick={() => this.props.model.removeDishFromMenu(this.props.dish.id)}>X</button>
         </div>     
     );
   }

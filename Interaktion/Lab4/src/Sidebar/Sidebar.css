@@ -13,5 +13,14 @@
 .Sidebar_bottom{
     grid-row: 2;
     display: grid;
-    grid-auto-rows: 1fr;
+    grid-template-rows: 3fr 1fr;
+    grid-template-columns: 100%;
+    overflow: auto;
+}
+#menuItemList{
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    align-content: start;
+    overflow: auto;
 }
