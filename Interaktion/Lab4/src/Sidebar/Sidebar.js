@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import MenuItem from "../MenuItem/MenuItem"
 import "./Sidebar.css";
 
 class Sidebar extends Component {
@@ -7,7 +8,8 @@ class Sidebar extends Component {
 
     // we put on state the properties we want to use and modify in the component
     this.state = {
-      numberOfGuests: this.props.model.getNumberOfGuests()
+      numberOfGuests: this.props.model.getNumberOfGuests(),
+      menu: this.props.model.getFullMenu()
     };
   }
 
@@ -28,7 +30,8 @@ class Sidebar extends Component {
   // cause the component to re-render
   update() {
     this.setState({
-      numberOfGuests: this.props.model.getNumberOfGuests()
+      numberOfGuests: this.props.model.getNumberOfGuests(),
+      menu: this.props.model.getFullMenu()
     });
   }
 
@@ -38,19 +41,29 @@ class Sidebar extends Component {
   };
 
   render() {
+    let menuitems = this.state.menu.map((dish) => {
+      <MenuItem  dish={dish}/>
+    })
+    console.log(this.state.menu);
+    console.log(menuitems);
     return (
       <div className="Sidebar">
-        <h3>This is the sidebar</h3>
-        <p>
-          People:
-          <input
-            type="number"
-            value={this.state.numberOfGuests}
-            onChange={this.onNumberOfGuestsChanged}
-          />
-          <br />
-          Total number of guests: {this.state.numberOfGuests}
-        </p>
+        <div className="Sidebar_top">
+          <h3>This is the sidebar</h3>
+          <p>
+            People:
+            <input
+              type="number"
+              value={this.state.numberOfGuests}
+              onChange={this.onNumberOfGuestsChanged}
+            />
+          </p>
+        </div>
+        <div className="Sidebar_bottom">
+          <ul>
+            {menuitems}
+          </ul>
+        </div>
       </div>
     );
   }
