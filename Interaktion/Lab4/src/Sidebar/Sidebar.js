@@ -41,9 +41,9 @@ class Sidebar extends Component {
   };
 
   render() {
-    let menuitems = this.state.menu.map((dish) => {
+    let menuitems = this.state.menu.map((dish) => (
       <MenuItem  dish={dish}/>
-    })
+    ))
     console.log(this.state.menu);
     console.log(menuitems);
     return (
