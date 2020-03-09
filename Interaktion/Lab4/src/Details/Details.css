@@ -2,38 +2,39 @@
     grid-column: 2/6;
     grid-row: 1/6;
     display: grid;
-    grid-template-columns: 1fr 10fr 1fr 10fr;
-    grid-template-rows: 1fr 5fr 4fr 1fr 2fr 5fr;
+    min-width: 0;
+    min-height: 0;
     overflow: auto;
+    grid-template-columns: 5% 45% 5% 45%;
+    grid-template-rows: 10% 25% 20% 5% 10% 30%;
 }
 .details_header{
     grid-column: 2;
     grid-row: 1;
+    min-width: 0;
+    min-height: 0;
+    font-size: 3em;
 }
 .details_image{
     grid-column: 2;
     grid-row: 2;
-    width: 100%;
-}
-.details_text{
-    grid-column: 2;
-    grid-row: 3;
-    font-size: 1.3em;
-}
-.ingredient_box{
-    grid-column: 4;
-    grid-row: 1/5;
-    background: yellow;
+    min-width: 0;
+    min-height: 0;
+    height: 200px;
 }
 .preparation{
     grid-column: 2;
     grid-row: 5;
-    font-size: 3em;
+    font-size: 2em;
+    min-width: 0;
+    min-height: 0;
 }
 .preparation_text{
     grid-column: 2/5;
     grid-row: 6;
-    font-size: 1.2em;
+    font-size: 1.3em;
+    min-width: 0;
+    min-height: 0;
 }
 #backbtn{
     grid-column: 2;
