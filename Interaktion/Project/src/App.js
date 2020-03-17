@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Route } from "react-router-dom";
+import modelInstance from "./data/WeatherModel";
 import "./App.css";
 
 class App extends Component{
@@ -8,6 +9,10 @@ class App extends Component{
         this.state = {
             title: "PROJECT"
         };
+    }
+
+    componentDidMount(){
+        console.log(modelInstance.getCurrentWeather());
     }
 
     render(){

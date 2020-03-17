@@ -2,7 +2,7 @@ import java.net.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-public class backend {
+public class Backend {
 
     public static void getCurrentWeather() throws IOException{
         URL url = new URL("http://api.openweathermap.org/data/2.5/weather?q=London,uk&appid=50681dec8da1106ac97805a58d14eec5");
