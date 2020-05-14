@@ -9,9 +9,12 @@ const httpOptions = {
 class DinnerModel extends ObservableModel {
   constructor() {
     super();
-    this._numberOfGuests = 4;
-    this.getNumberOfGuests();
+    this._numberOfGuests = 0;
     this.menu = [];
+    (localStorage.getItem("guests") !== null) ? this._numberOfGuests = localStorage.getItem("guests") : this._numberOfGuests = 0;
+    try{
+      this.menu = JSON.parse(localStorage.getItem("menu"));
+    } catch(e){}
   }
 
   /**
@@ -29,6 +32,7 @@ class DinnerModel extends ObservableModel {
   setNumberOfGuests(num) {
     this._numberOfGuests = num;
     this.notifyObservers();
+    localStorage.setItem("guests",num);
   }
 
   // API methods
@@ -63,12 +67,14 @@ class DinnerModel extends ObservableModel {
   //Adds the passed dish to the menu.
   addDishToMenu(dish) {
     this.menu.push(dish);
+    localStorage.setItem("menu", JSON.stringify(this.menu));
   }
 
   //Removes dish with specified id from menu
   removeDishFromMenu(id) {
     this.menu.splice(this.menu.indexOf(this.getDish(id)),1);
     this.notifyObservers();
+    localStorage.setItem("menu", JSON.stringify(this.menu));
   }
 
   getDish(id) {
