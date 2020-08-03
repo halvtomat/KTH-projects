@@ -1,0 +1,3 @@
+# Keeps the api config file from being included in git.
+# This is very important as you don't want the api key to end up on github.
+/src/model/apiConfig.js

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dinner planner</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/mocha/mocha.css" />
+
+  </head>
+  <body>
+    <div class="container" id="page-content">
+      <h1>Dinner planner</h1>
+      <div id="loader" class="spinner-border" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+
+    <div id="mocha"></div>
+
+    <script src="https://unpkg.com/chai/chai.js"></script>
+    <script src="https://unpkg.com/mocha/mocha.js"></script>
+
+    <script class="mocha-init">
+      mocha.setup({
+  ui: 'bdd'
+      });
+      mocha.checkLeaks();
+    </script>
+
+    <!-- The application JavaScript code -->
+    <script src="src/model/apiConfig.js"></script>
+    <script src="src/model/dinnerModel.js"></script>
+    <script src="src/view/homeView.js"></script>
+    <script src="src/view/searchView.js"></script>
+    <script src="src/view/overviewView.js"></script>
+    <script src="src/app.test.js"></script>
+    <script src="src/model/dinnerModel.test.js"></script>
+
+
+    <script class="mocha-exec">
+      mocha.run();
+    </script>
+
+  </body>
+</html>

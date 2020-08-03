@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dinner planner</title>
+
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+</head>
+<body>
+<div class="container_page-content">
+    <div id="loader" class="spinner-border" role="status" style="display: none">
+        <span class="sr-only">Loading...</span>
+    </div>
+    <div id="container-header" style="display: none">
+	    DINNER PLANNER
+    </div>
+    <div id="container-home" style="display: none">
+        <div id="home_text">
+            Lorem ipsum dolor sit, amet consectetur adipisicing elit.
+            Distinctio deserunt, corporis laborum, mollitia accusamus
+            ipsum nesciunt quibusdam sapiente natus veniam voluptas
+            sequi sed! Voluptate reprehenderit hic quis voluptas,
+            reiciendis ducimus exercitationem quia mollitia fugiat,
+            quaerat molestiae aperiam neque consequatur quos.
+        </div>
+        <button type="button" id="startbtn" class="button">
+                Create new dinner
+            </button>
+    </div>
+    <div id="container-sidebar" style="display:none">
+        <div id="sidebar_top">
+            <div id="sidebar_top_text1">
+                My Dinner
+            </div>
+            <div id="sidebar_top_text2">
+                People
+            </div>
+            <input type="number" id="guestNumberSelect" min="1" max="10" value="0">
+        </div>
+        <div id="sidebar_middle">
+            <div id="sidebar_middle_text1">
+                Dish Name
+            </div>
+            <div id="sidebar_middle_text2">
+                Cost
+            </div>
+        </div>
+        <div id="sidebar_bottom">
+            <div id="totalPrice">
+                SEK 0.00
+            </div>
+            <button id="placeOrderBtn" class="button" type="button">
+                Confirm Dinner
+            </button>
+        </div>
+    </div>
+    <div id="container-details" style="display:none">
+        <h1 id="details_header"> Metaballs</h1>
+        <img src="images/meatballs.jpg" id="details_image">
+        <div id="details_text">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Sed ab similique,
+            dolor impedit corporis pariatur aperiam veritatis nostrum minima! Asperiores
+             quas ad sed esse laborum ullam earum quae obcaecati maiores corporis molestiae
+             accusamus, adipisci dolorum est magni non provident in.
+        </div>
+        <button id="backBtn" class="button" type="button">
+            back to search
+        </button>
+        <h1 id="preparation">Preparation</h1>
+        <div id="preparation_text">
+            Lorem ipsum dolor sit,
+             amet consectetur adipisicing elit. Fugit nobis non vel
+             vero pariatur ab odio quo error molestiae? Rerum, eligendi. Maxime,
+              voluptates labore. Dolores repudiandae, quibusdam dignissimos exercitationem
+              perferendis provident voluptatibus eum vel nemo nulla numquam consectetur nostrum
+              nesciunt qui tenetur ab magni ducimus quo ratione. Dicta quod quidem animi magni
+               dolor earum qui beatae natus, voluptatum minus quis incidunt provident assumenda
+               velit perspiciatis dolore odit neque ducimus? Quidem illum labore adipisci libero
+               excepturi, recusandae cumque dolore consectetur, velit ex voluptas deserunt eos architecto
+               in enim inventore nostrum maxime! Totam quo, provident ipsum at optio quae, expedita esse corporis
+                cum nihil magni libero similique, eos labore! Aliquid, officiis? Nisi delectus cumque
+                 praesentium eius ducimus accusamus, tempore corrupti odit laborum. Corrupti voluptatem ullam itaque
+                 labore velit autem provident ex cum laborum nobis rerum nihil, vitae quisquam qui illo voluptas maxime
+                 dolore neque sunt sit doloremque repellendus placeat. Dolor necessitatibus eos totam quis omnis rerum,
+                  labore ipsam debitis hic accusantium! Adipisci consequatur odit architecto repellendus, eos nostrum
+                   obcaecati minus nisi nam doloribus commodi laborum ullam quod quas ea dignissimos dolorem sit, soluta mollitia
+                    nihil dolorum provident. Nulla adipisci,
+            architecto maxime facere debitis officia exercitationem cum alias nisi necessitatibus odio incidunt et!
+        </div>
+	    <div id="ingredients_box">
+            <div id="ingredients_box_top">
+                INGREDIENTS FOR 1 PEOPLE
+            </div>
+            <div id="ingredients_box_middle">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptate, animi?
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Debitis, architecto!
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui, maiores?
+                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Aperiam, natus.
+                Lorem ipsum dolor sit, amet consectetur adipisicing elit. Corporis, at.
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Earum, tempore.
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsam, tenetur?
+                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Eligendi, minima.
+                Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quasi, ea.
+                Lorem ipsum dolor sit amet consectetur, adipisicing elit. Amet, illo.
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repellendus, nulla.
+                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nisi, placeat.
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus, dolorem.
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Aperiam, dolorum.
+                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Magnam, voluptates!
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos, laborum.
+            </div>
+            <div id="ingredients_box_bottom">
+                <button id="addToMenuBtn" type="button" class="button">
+                    Add to Menu
+                </button>
+            </div>
+        </div>
+
+    </div>
+    <div id="container-search" style="display:none">
+        <div id="search_top">
+            <div id="search_text">
+                FIND A DISH
+            </div>
+            <input id="searchBar" type="text" placeholder="Enter key words">
+            <button id="searchSubmitBtn" class="button" type="submit">
+                search
+            </button>
+            <select id="categorySelect">
+                <option value="All">All</option>
+                <option value="Main Course">Main Course</option>
+                <option value="Side Dish">Side Dish</option>
+                <option value="Dessert">Dessert</option>
+                <option value="Appetizer">Appetizer</option>
+            </select>
+        </div>
+        <div id="search_bottom">
+            <img src="images/meatballs.jpg" id="image1" class="image">
+            <img src="images/icecream.jpg" id="image2" class="image">
+            <img src="images/sourdough.jpg" id="image3" class="image">
+            <img src="images/toast.jpg" id="image4" class="image">
+            <img src="images/meatballs.jpg" id="image5" class="image">
+            <div id="image_text1" class="image_text">
+                metaballs
+            </div>
+            <div id="image_text2" class="image_text">
+                ijscremé
+            </div>
+            <div id="image_text3" class="image_text">
+                white sauce
+            </div>
+            <div id="image_text4" class="image_text">
+                guccimacka
+            </div>
+            <div id="image_text5" class="image_text">
+                metaballs
+            </div>
+        </div>
+    </div>
+    <div id="container-overview" style="display:none">
+        <div id="overview_top">
+          <h1 id="my_dinner">
+            My dinner: 0 people
+          </h1>
+         <button id="overview_back_btn" type="button" class="button">
+           Go back and edit dinner
+         </button>
+       </div>
+       <div id="overview_middle">
+         <div id="overview_middle_left">
+         </div>
+         <div id="overview_middle_right">
+           <div id="totalPrice_overview">
+             Total:
+             SEK 0.00
+           </div>
+         </div>
+       </div>
+       <div id="overview_bottom">
+         <button id="print_btn" type="button" class="button">
+           Print full recipe
+         </button>
+       </div>
+    </div>
+    <div id="container-printout" style="display:none">
+	    <div id="printout_top">
+            <div id="printout_top_text">
+                My Dinner: 0 people
+            </div>
+            <button id="printout_top_button" type="button" class="button">
+                Go back and edit dinner
+            </button>
+        </div>
+        <div id="printout_bottom">
+
+        </div>
+    </div>
+</div>
+
+<!-- The application JavaScript code -->
+<script src="src/model/apiConfig.js"></script>
+<script src="src/model/dinnerModel.js"></script>
+<script src="src/view/overviewView.js"></script>
+<script src="src/view/homeView.js"></script>
+<script src="src/view/searchView.js"></script>
+<script src="src/view/detailsView.js"></script>
+<script src="src/view/printoutView.js"></script>
+<script src="src/view/sidebarView.js"></script>
+<script src="src/app.js"></script>
+
+</body>
+</html>
