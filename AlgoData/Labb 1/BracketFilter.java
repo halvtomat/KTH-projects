@@ -1,3 +1,4 @@
+import java.util.Scanner;
 /*  This file is dependent on the CharStack java class */
 public class BracketFilter {
     public static boolean isBalanced(String s){
@@ -24,6 +25,13 @@ public class BracketFilter {
         return cs.isEmpty();
     }
     public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        String s = scanner.nextLine();
+        scanner.close();
+
+        if(isBalanced(s)) System.out.println("The string is balanced!");
+        else System.out.println("The string is not balanced");
+
         assert (isBalanced("()"));
         assert !(isBalanced("("));
         assert !(isBalanced("[{]}"));

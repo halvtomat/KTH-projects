@@ -1,7 +1,6 @@
 import java.util.Scanner;
-/*  This class implements a CharStack to reverse a string of characters.
-    Scan the next line into a string, go through all the characters in the string and add them to the CharStack.
-    Last step is to Pop all the characters back and print them in reverse order.*/ 
+/*  This class Recursively reverses a string
+*/ 
 public class reverseStackRec{
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
