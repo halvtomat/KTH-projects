@@ -1,16 +1,16 @@
-public class ItemStack<Item>{
+public class CharStack{
     private Node head;
 
     private class Node{
-        Item item;
+        char c;
         Node next;
     }
 
-    /*  Push method adds another Node at the top of the ItemStack, the node contains a Item.
-        Push requires a Item to be put in the new Node.*/
-    public void Push(Item item){
+    /*  Push method adds another Node at the top of the charStack, the node contains a char.
+        Push requires a char to be put in the new Node.*/
+    public void Push(char c){
         Node node = new Node();
-        node.item = item;
+        node.c = c;
         if(head == null){
             node.next = null;
             head = node;
@@ -20,27 +20,27 @@ public class ItemStack<Item>{
         }
     }
     /*  Peek method returns the value of the head Node */
-    public Item Peek(){
-        return head.item;
+    public char Peek(){
+        return head.c;
     }
 
-    /*  Pop method removes the Node at the top of the ItemStack and returns the item of the Node.
+    /*  Pop method removes the Node at the top of the charStack and returns the char of the Node.
         Pop has no input parameters.*/
-    public Item Pop(){
+    public char Pop(){
         Node n = head;
         head = n.next;
-        return n.item;
+        return n.c;
     }
-    /*  isEmpty method checks to see if there is a head Node in the ItemStack, if there isn't the ItemStack must be empty.
-        Returns a boolean, false if the ItemStack contains a head Node and True if it doesn't. */
+    /*  isEmpty method checks to see if there is a head Node in the charStack, if there isn't the charStack must be empty.
+        Returns a boolean, false if the charStack contains a head Node and True if it doesn't. */
     public boolean isEmpty(){
         boolean empty = false;
         if(head == null) empty = true;
         return empty;
     }
-    /* the main contains a number of tests to check that the ItemStack is working correctly. */
+    /* the main contains a number of tests to check that the charStack is working correctly. */
     public static void main(String[] args) {
-        ItemStack cs = new ItemStack();
+        CharStack cs = new CharStack();
 
         assert cs.isEmpty();
 

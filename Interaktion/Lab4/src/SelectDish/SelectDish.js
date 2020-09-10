@@ -32,7 +32,8 @@ class SelectDish extends Component {
         return ( 
         <div className="SelectDish">
           <h1>Something is horribly wrong</h1>
-        </div>);
+        </div>
+        );
     }
 
   }

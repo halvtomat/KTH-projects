@@ -1,4 +1,3 @@
-import java.io.*;
 import java.util.Scanner;
 /*  This class implements a CharStack to reverse a string of characters.
     Scan the next line into a string, go through all the characters in the string and add them to the CharStack.
