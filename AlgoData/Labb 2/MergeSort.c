@@ -1,18 +1,29 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdio.h>
+
+void print(int a[], int n){
+    printf("%c",'[');
+    for(int i = 0; i < n; i++){
+        printf("%d", a[i]);
+        if(i < n - 1) printf("%c", ',');
+    }
+    printf("%s","]\n");
+}
+
 void Merge(int a[], int b, int c, int d){
-    int i,j,k;
+    //print(a,5);
+    //printf("%d%c%d%c%d%c",b,',',c,',',d,'\n');
+
     int n1 = c-b+1;
     int n2 = d - c;
 
     int t1[n1],t2[n2];
 
-    for(i = 0; i < n1; i++)t1[i] = *(a+b+1);
-    for(i = 0; i < n2; i++)t2[i] = *(a+c+i+1);
+    for(int i = 0; i < n1; i++)t1[i] = *(a+b+i);
+    for(int i = 0; i < n2; i++)t2[i] = *(a+c+i+1);
 
-    i = 0;
-    k = 1;
+    int i = 0, j = 0, k = b;
     while(i < n1 && j < n2){
         if(t1[i] <= t2[j])*(a+k) = t1[i++];
         else *(a+k) = t2[j++];
@@ -30,13 +41,22 @@ void MergeSort(int a[], int b, int c){
         Merge(a,b,d,c);
     }
 }
-int main(int argc, char const *argv[])
-{
+int main(int argc, char const *argv[]){
+    // int n; 
+    // scanf("%d", &n);
+    // int a[n];
+    // for(int i = 0; i < n; i++){
+    //     scanf("%d", &a[i]);
+    // }
+    // print(a,n);
+    // MergeSort(a,0, n-1);
+    // print(a,n);
     clock_t s,e;
     double timeUsed;
-    const int SIZE = 200000;
+    const int SIZE = atoi((char *)argv[1]);
+    const int ITERATIONS = atoi((char *)argv[2]);
     int k;
-    for(k = 0; k < 100; k++){
+    for(k = 0; k < ITERATIONS; k++){
         srand(time(NULL));
         int a[SIZE];
         int i;
@@ -55,8 +75,7 @@ int main(int argc, char const *argv[])
             printf("%c",',');
         }*/
     }
-    printf("%s","Time taken: ");
-    printf("%f",timeUsed);
+    printf("%f%s",timeUsed/100, "\n");
     return 0;
 }
 /*  RESULTS: question 8

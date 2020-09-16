@@ -18,11 +18,12 @@ void Swap(int* a, int* b){
     *a = *b;
     *b = temp;
 }
-/*  NegativeFirst function rearranges an array for all negatives in teh array to be put at the start of the array
+/*  NegativeFirst function rearranges an array for all negatives in the array to be put at the start of the array
     if an element in a[0...nc] > 0 is found, there must exist an element a[nc...SIZE] < 0
     the loop searches for these elements and swap them
     after each swap there must exist one less negative element in a[nc...SIZE] so therefore offset nc by + 1 for every swap or nc+o , o++
-    Calculated and validated time complexity = O(N*N)*/
+    Calculated and validated time complexity = O(N*N)
+*/
 void NegativeFirst(int a[], int size){
     int i;
     int o = 0;
@@ -60,6 +61,6 @@ int main(int argc, char const *argv[]){
         printf("%c",',');
     }*/
     printf("%s","Time taken: ");
-    printf("%f",timeUsed);
+    printf("%f%c",timeUsed, '\n');
     return 0;
 }
