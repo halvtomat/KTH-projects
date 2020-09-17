@@ -7,8 +7,13 @@ void Swap(int* a, int* b){
     *a = *b;
     *b = temp;
 }
+int medianThree(int a, int b, int c) {
+    if ((a > b) != (a > c)) return a;
+    else if ((b > a) != (b > c)) return b;
+    else return c; 
+}
 int Partition(int a[],int b, int c){
-    int d = *(a+c);
+    int d = medianThree(*(a+b),*(a+c),*(a+(b+c)/2));
     int i = b-1;
     int j;
     for(j = b; j <= c - 1; j++){

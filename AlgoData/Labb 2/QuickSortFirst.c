@@ -8,7 +8,7 @@ void Swap(int* a, int* b){
     *b = temp;
 }
 int Partition(int a[],int b, int c){
-    int d = *(a+c);
+    int d = *(a+b);
     int i = b-1;
     int j;
     for(j = b; j <= c - 1; j++){

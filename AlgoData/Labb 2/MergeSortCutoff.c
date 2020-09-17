@@ -11,6 +11,19 @@ void print(int a[], int n){
     printf("%s","]\n");
 }
 
+void insertionSort(int a[], int b, int c){
+    int i,j,k;
+    for(i = b+1; i < c; i++){
+        k = a[i];
+        j = i - 1;
+        while(j >= b && a[j] > k){
+            a[j + 1] = a[j];
+            j = j - 1;
+        }
+        a[j + 1] = k;
+    }
+}
+
 void Merge(int a[], int b, int c, int d){
     //print(a,5);
     //printf("%d%c%d%c%d%c",b,',',c,',',d,'\n');
@@ -32,12 +45,20 @@ void Merge(int a[], int b, int c, int d){
     while(i < n1) *(a+k++) = t1[i++];
     while(j < n2) *(a+k++) = t2[j++];
 }
-void MergeSort(int a[], int b, int c){
+void MergeSort(int a[], int b, int c, int CUTOFF){
+    //printf("%d%s%d%s",b, " , ", c, "\n");
     if(b < c){
-        int d = (b+c)/2;
-        MergeSort(a,b,d);
-        MergeSort(a,d+1,c);
-        Merge(a,b,d,c);
+        if(c - b <= CUTOFF){
+            //printf("%d%s%d%s",CUTOFF, " , ", b-c, " : ");
+            //printf("%s","cutoff\n");
+            insertionSort(a,b,c);
+        }
+        else{
+            int d = (b+c)/2;
+            MergeSort(a,b,d, CUTOFF);
+            MergeSort(a,d+1,c, CUTOFF);
+            Merge(a,b,d,c);
+        }
     }
 }
 int main(int argc, char const *argv[]){
@@ -54,6 +75,7 @@ int main(int argc, char const *argv[]){
     double timeUsed;
     const int SIZE = atoi((char *)argv[1]);
     const int ITERATIONS = atoi((char *)argv[2]);
+    const int CUTOFF = atoi((char *)argv[3]);
     int k;
     for(k = 0; k < ITERATIONS; k++){
         srand(time(NULL));
@@ -65,7 +87,7 @@ int main(int argc, char const *argv[]){
             //printf("%c",',');
         }
         s = clock();
-        MergeSort(a,0, SIZE-1);
+        MergeSort(a,0, SIZE-1, CUTOFF);
         e = clock();
         timeUsed += ((double) (e - s)) /CLOCKS_PER_SEC;
         /*printf("%c",'\n');
