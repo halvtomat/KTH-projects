@@ -1,5 +1,3 @@
-import java.util.*;
-
 public class OrderedArrayST<Key extends Comparable<Key>, Value>{
     private Key[] keys;
     private Value[] vals;

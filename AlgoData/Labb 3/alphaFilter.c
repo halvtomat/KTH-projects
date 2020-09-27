@@ -8,7 +8,7 @@
     clear the string*/
 int main(int argc, char const *argv[]){
     char a[200] = "";
-    while(gets(a) != NULL){
+    while(fgets(a, 200, stdin) != NULL){
         int i = 0;
         for(i;i < 200;i++){
             char c = *(a+i);

@@ -53,7 +53,7 @@ int main(int argc, char const *argv[])
             printf("%c",',');
         }*/
     }
-    printf("%f%s",timeUsed/100, "\n");
+    printf("%f%s",timeUsed, "\n");
     return 0;
 }
 /*  RESULTS: question 9

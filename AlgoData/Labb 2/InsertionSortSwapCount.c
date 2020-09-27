@@ -24,7 +24,7 @@ void insertionSort(int a[], int n){
             j = j - 1;
         }
         a[j + 1] = k;
-        //print(a,n);
+        print(a,n);
     }
 }
 
@@ -35,9 +35,8 @@ int main(int argc, char const *argv[]){
     for(int i = 0; i < n; i++){
         scanf("%d", &a[i]);
     }
-    print(a,n);
     insertionSort(a,n);
     printf("%s%d%c", "Swap count = ", swapcount, '\n');
-    print(a,n);
+    
     return 0;
 }

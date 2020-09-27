@@ -8,7 +8,7 @@ public class FrequencyCounterBST{
         Clock clock = Clock.systemDefaultZone();
         long s,t;
         s = clock.millis();
-        for(int i = 0; i < Integer.parseInt(args[1])*100;i++){
+        for(int i = 0; i < Integer.parseInt(args[1])*100; i++){
             if(System.in.read() == -1) break;
             String word = scanner.next();
             if(word.length() < minLen) continue;
@@ -24,6 +24,6 @@ public class FrequencyCounterBST{
             if(st.get(word) > st.get(max)) max = word;
         }
         t = t + (clock.millis()-s);
-        System.out.println(max +" "+st.get(max)+"\nTime Taken: " + t+" ms");
+        System.out.println("Time Taken: " + t+" ms");
     }
 }

@@ -25,7 +25,7 @@ void insertionSort(int a[], int n){
     }
 }
 
-void inversioncount(int a[], int n){
+void inversioncount(int a[], int n){ //n² 
     for(int i = 0; i < n; i++){
         for(int j = i+1; j < n; j++){
             if(a[i] > a[j]) printf("%c%d%c%d%s%d%c%d%s", '[', i, ',', a[i], "],[", j, ',', a[j], "]\n");

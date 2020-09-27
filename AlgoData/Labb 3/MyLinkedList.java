@@ -1,5 +1,4 @@
 import java.util.Iterator;
-import java.io.*;
 
 public class MyLinkedList<Item> implements Iterable<Item>{
     private Node first;
@@ -20,6 +19,17 @@ public class MyLinkedList<Item> implements Iterable<Item>{
            first = node; 
         }
     }
+
+    /*Returns true if item exists in list*/
+    public boolean contains(Item item){
+        Node node = first;
+        while(node != null){
+            if(node.item.equals(item)) return true;
+            node = node.next;
+        }
+        return false;
+    }
+
     /*Print method prints the whole queue*/
     public String print(){
         String out = "";

@@ -1,6 +1,15 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdio.h>
+
+void print(int a[], int n){
+    printf("%c",'[');
+    for(int i = 0; i < n; i++){
+        printf("%d", a[i]);
+        if(i < n - 1) printf("%c", ',');
+    }
+    printf("%s","]\n");
+}
 void insertionSort(int a[], int n){
     int i,j,k;
     for(i = 1; i < n; i++){
@@ -11,6 +20,7 @@ void insertionSort(int a[], int n){
             j = j - 1;
         }
         a[j + 1] = k;
+        //print(a,n);
     }
 }
 
@@ -22,12 +32,7 @@ int main(int argc, char const *argv[]){
     //     scanf("%d", &a[i]);
     // }
     // insertionSort(a,n);
-    // printf("%c",'[');
-    // for(int i = 0; i < n; i++){
-    //     printf("%d", a[i]);
-    //     if(i < n - 1) printf("%c", ',');
-    // }
-    // printf("%s","]\n");
+
 
 
     clock_t s,e;
@@ -54,6 +59,6 @@ int main(int argc, char const *argv[]){
             printf("%c",',');
         }*/
     }
-    printf("%f%s",timeUsed/100, "\n");
+    printf("%f%s",timeUsed, "\n");
     return 0;
 }

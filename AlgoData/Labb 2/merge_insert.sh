@@ -9,10 +9,10 @@ rm merRes
 rm iterate
 #echo "--- Insertion Sort ---"
 for i in {1..20}; do
-    echo $((100*$i)) >> iterate
-    ./insertion $((100*$i)) 100 >> insRes;
+    echo $((10*$i)) >> iterate
+    ./insertion $((10*$i)) 10 >> insRes;
 done
 #echo "--- Merge Sort ---"
 for i in {1..20}; do
-    ./merge $((100*$i)) 100 0 >> merRes;
+    ./merge $((10*$i)) 10 0 >> merRes;
 done
