@@ -60,14 +60,14 @@ public class Graph{
     public void DFS(String v, String d){
         ItemStack<String> is = new ItemStack<String>();
         boolean[] visited = new boolean[SIZE];
-        DFS_Util(findVertex(v),findVertex(d), visited,is);
+        DFS_Util(findVertex(v), findVertex(d), visited, is);
         String s = "";
         while(is.isEmpty() != true){
-            s = is.Pop() +" "+ s;
+            s = is.Pop() + " " + s;
         }
         System.out.print(s);
     }
-    private void DFS_Util(int v,int d, boolean[] visited, ItemStack<String> is){
+    private void DFS_Util(int v, int d, boolean[] visited, ItemStack<String> is){
         visited[v] = true;
         is.Push(connections[v].getHead());
 
@@ -87,14 +87,14 @@ public class Graph{
         ItemStack<String> is = new ItemStack<String>();
         FIFOqueue<Integer> fq = new FIFOqueue<Integer>();
         boolean[] visited = new boolean[SIZE];
-        BFS_Util(findVertex(v), findVertex(d),visited, fq, is);
+        BFS_Util(findVertex(v), findVertex(d), visited, fq, is);
         String s ="";
         while(is.isEmpty() != true){
-            s =is.Pop()+ " "+ s;
+            s = is.Pop() + " " + s;
         }
         System.out.print(s);
     }
-    private void BFS_Util(int v, int d,boolean[] visited,FIFOqueue<Integer> fq,ItemStack<String> is){
+    private void BFS_Util(int v, int d, boolean[] visited, FIFOqueue<Integer> fq, ItemStack<String> is){
         visited[v] = true;
         is.Push(connections[v].getHead());
 
