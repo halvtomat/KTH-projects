@@ -4,7 +4,7 @@ public class BFS{
     
     public static void main(String[] args) throws Exception {
         Scanner scanner = new Scanner(System.in);
-        Graph graph = new Graph(100);
+        DirectedGraph graph = new DirectedGraph(100);
         while(scanner.hasNext()){
             String v1 = scanner.next();
             String v2 = scanner.next();
@@ -12,5 +12,6 @@ public class BFS{
         }
         scanner.close();
         graph.BFS(args[0],args[1]);
+        System.out.println("");
     }
 }

@@ -136,7 +136,10 @@ public class DirectedGraph{
                 is.Push(connections[n].getHead());
                 return;
             }
-            if(!visited[n])fq.Insert(n);
+            if(!visited[n]){
+                fq.Insert(n);
+                visited[n] = true;
+            }
         }
         Integer n = fq.Delete();
         if(n == null) return;
